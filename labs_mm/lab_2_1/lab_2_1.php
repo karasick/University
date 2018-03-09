@@ -77,52 +77,12 @@
 
       $graph_dat = array_fill(1,3,array());
 
-      /*
-      echo
-      "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
-       <tr>
-        <th rowspan=\"2\">C_Ybal</th>
-        <th rowspan=\"2\">A_bal</th>
-        <th colspan=\"2\">D_vbal</th>
-        <th colspan=\"2\">t_ppa</th>
-        <th colspan=\"2\">T_a</th>
-        <th colspan=\"3\">D_ny_v</th>
-       </tr>
-       <tr>
-        <th>analyt design</th>
-        <th>real obj</th>
-        <th>model</th>
-        <th>real obj</th>
-        <th>model</th>
-        <th>real obj</th>
-        <th>analyt design</th>
-        <th>model</th>
-        <th>real obj</th>
-       </tr>
-       <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-       </tr>
-      </table>";
-      */
-
-      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
       for($demper = 1; $demper <= 3; $demper++){
 
         $t = 0; // s - flight time
         $td = 0; // s - output time
         $tf = 20.001; // s - flight end time
-        $dt = 0.1; // 1 per s - integration step
+        $dt = 0.01; // 1 per s - integration step
         $dd = 0.1; // s - output time
 
         echo "<h3 aling=\"left\"> Dempfer value = $demper.</h3>";
@@ -354,5 +314,34 @@
     <div id="chart_div_a"></div>
     <div id="chart_div_b"></div>
     <div id="chart_div_c"></div>
+    <?php
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+          echo
+          "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
+           <tr>
+            <th rowspan=\"2\">C_Ybal</th>
+            <th rowspan=\"2\">A_bal</th>
+            <th colspan=\"2\">D_vbal</th>
+            <th colspan=\"2\">t_ppa</th>
+            <th colspan=\"2\">T_a</th>
+            <th colspan=\"3\">D_ny_v</th>
+           </tr>
+           <tr>
+            <th>analyt design</th>
+            <th>real obj</th>
+            <th>model</th>
+            <th>real obj</th>
+            <th>model</th>
+            <th>real obj</th>
+            <th>analyt design</th>
+            <th>model</th>
+            <th>real obj</th>
+           </tr>
+           <tr>
+            <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+           </tr>
+          </table>";
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ?> 
   </body>
 </html>
