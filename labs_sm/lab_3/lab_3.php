@@ -1,5 +1,5 @@
 <?php
-require "C:\\xampp\htdocs\php\helpers.php";
+require "C:\\xampp\htdocs\php\GitHub\University\helpers.php";
 Page::TopHead("Lab 3");
 
 class analyzed_data {
@@ -8,17 +8,15 @@ class analyzed_data {
   public $rang;
 
   function __construct($filePath) {
+    
     $this->data = file_get_contents($filePath);
-  }
-
-  function getContents () {
-    return $this->data; 
   }
 
   function  extractRang () {
 
     $rows = explode("\n", $this->data);
     foreach ($rows as &$row) {
+      
       $row = explode(" ", substr($row, 5, -6));
     }
 

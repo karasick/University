@@ -18,33 +18,12 @@
       $al = 24; // pers AEwC -  alignment (tsentrovka)
       $Iz = 660000; // kg * m * s^2 - lengthwise moment of inertia
 
-      #$v0 = 190.0; // m per s - speed
-      #$h = 6400; // m - height
-      #$pr = 0.0636; // (kg * s^2) per m^2 - pressure
-      #$An = 314.34; // m per s - ?
-
       $v0 = 250.0; // m per s - speed
       $h = 11300; // m - height
       $pr = 0.0372; // (kg * s^2) per m^2 - pressure
       $An = 295.06; // m per s - ?
 
       $g = 9.81; // m per s^2 - gravitational acceleration
-
-      /*$t = 0; // s - flight time
-      $td = 0; // s - output time
-      $tf = 20.001; // s - flight end time
-      $dt = 0.01; // 1 per s - integration step
-      $dd = 0.5; // s - output time*/
-
-      #$C_y0 = -0.280; // - aerodynamic characteristic of ?
-      #$C_A_y = 5.90; // - aerodynamic characteristic of ?
-      #$C_Dv_y = 0.2865; // - aerodynamic characteristic of ?
-      #$C_x = 0.033; // - aerodynamic characteristic of ?
-      #$M_z0 = 0.22; // - ?
-      #$M_vWz_z = -13.4; // - ?
-      #$M_vA_z = -4.0; // - ?
-      #$M_A_z = -1.95; // - ?
-      #$M_Dv_z = -0.92;  // - ?
 
       $C_y0 = -0.320; // - aerodynamic characteristic of ?
       $C_A_y = 6.30; // - aerodynamic characteristic of ?
@@ -161,7 +140,7 @@
                     </tr>";
             }
         }
-        echo "</table>";
+        echo "</table><br/>";
 
         $graph_dat_file = 'data' . $demper . '.json';
         $handle = fopen($graph_dat_file, 'w') or die ('Cannot open file: ' . $graph_dat_file);
@@ -213,7 +192,7 @@
             subtitle: 'for 3 damper modes'
           },
           width: 1000,
-          height: 350,
+          height: 1000,
           colors: ['red', 'green', 'cyan']
         };
 
@@ -256,7 +235,7 @@
               subtitle: 'for 3 damper modes'
             },
             width: 1000,
-            height: 350,
+            height: 1000,
             colors: ['red', 'green', 'cyan']
           };
 
@@ -299,7 +278,7 @@
               subtitle: 'for 3 damper modes'
             },
             width: 1000,
-            height: 350,
+            height: 1000,
             colors: ['red', 'green', 'cyan']
           };
 
@@ -314,6 +293,7 @@
     <div id="chart_div_a"></div>
     <div id="chart_div_b"></div>
     <div id="chart_div_c"></div>
+    <br/>
     <?php
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           echo
@@ -338,10 +318,31 @@
             <th>real obj</th>
            </tr>
            <tr>
-            <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+            <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td><br/></td>
            </tr>
-          </table>";
+          </table><br/>";
+          echo "<h2>Vi = " . $v0 * sqrt($pr/0.1249) . "</h2> ";
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /*$t = 0; // s - flight time
+      $td = 0; // s - output time
+      $tf = 20.001; // s - flight end time
+      $dt = 0.01; // 1 per s - integration step
+      $dd = 0.5; // s - output time*/
+
+      #$C_y0 = -0.280; // - aerodynamic characteristic of ?
+      #$C_A_y = 5.90; // - aerodynamic characteristic of ?
+      #$C_Dv_y = 0.2865; // - aerodynamic characteristic of ?
+      #$C_x = 0.033; // - aerodynamic characteristic of ?
+      #$M_z0 = 0.22; // - ?
+      #$M_vWz_z = -13.4; // - ?
+      #$M_vA_z = -4.0; // - ?
+      #$M_A_z = -1.95; // - ?
+      #$M_Dv_z = -0.92;  // - ?
+      
+      //$v0 = 190.0; // m per s - speed
+      //$h = 6400; // m - height
+      //$pr = 0.0636; // (kg * s^2) per m^2 - pressure
+      //$An = 314.34; // m per s - ?
     ?> 
   </body>
 </html>

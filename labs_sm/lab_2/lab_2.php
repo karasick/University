@@ -1,5 +1,5 @@
 <?php
-require "C:\\xampp\htdocs\php\helpers.php";
+require "C:\\xampp\htdocs\php\GitHub\University\helpers.php";
 require "binary.php";
 Page::TopHead("Lab 2");
 
