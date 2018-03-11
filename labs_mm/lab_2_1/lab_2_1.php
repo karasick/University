@@ -3,10 +3,6 @@
     <title>
       Lab 2_1
     </title>
-    <link rel="icon"
-          type = "image/png"
-          href = "./plane.png"
-    />
   </head>
 
   <body>

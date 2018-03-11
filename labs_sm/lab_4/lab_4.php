@@ -168,5 +168,5 @@ Page::TopHead("Lab 4");
     $n->MoveToRL();
     $n->DisplayResults();
 
-    Page::Bottom();
+Page::Bottom();
 ?>

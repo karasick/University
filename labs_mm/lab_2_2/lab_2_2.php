@@ -1,58 +1,84 @@
 <html>
   <head>
     <title>
-      Lab 2_1
+      Lab 2_2
     </title>
-    <link rel="icon"
-          type = "image/png"
-          href = "./plane.png"
-    />
   </head>
-
   <body>
     <?php
 
       $S = 201.45; // m^2 - square
       $b_a = 5.285; // m - average aerodynamic wing chord
       $G = 73000; // kg - weight
-      $al = 24; // pers AEwC -  alignment (tsentrovka)
+      $al = array(0 => 18, 1 => 24, 2 => 32); // pers AEwC -  alignment (tsentrovka)
       $Iz = 660000; // kg * m * s^2 - lengthwise moment of inertia
 
-      $v0 = 250.0; // m per s - speed
-      $h = 11300; // m - height
-      $pr = 0.0372; // (kg * s^2) per m^2 - pressure
-      $An = 295.06; // m per s - ?
+      $n_dv = 3; // amount of engines
+      $Y_dv = 0.5; // m - engine thrust arm in vertical area of ​​symmetry
+
+      $V = 97.2; // m per s - speed
+      $h = 500; // m - height
+      $pr = 0.1190; // (kg * s^2) per m^2 - pressure
+      $a_n = 338.36; // m per s - ?
 
       $g = 9.81; // m per s^2 - gravitational acceleration
 
-      $C_y0 = -0.320; // - aerodynamic characteristic of ?
-      $C_A_y = 6.30; // - aerodynamic characteristic of ?
-      $C_Dv_y = 0.2635; // - aerodynamic characteristic of ?
-      $C_x = 0.031; // - aerodynamic characteristic of ?
-      $M_z0 = 0.27; // - ?
-      $M_vWz_z = -15.5; // - ?
-      $M_vA_z = -5.2; // - ?
-      $M_A_z = -2.69; // - ?
-      $M_Dv_z = -0.92;  // - ?
+      $C_y0 = -0.255; // - aerodynamic characteristic of ?
+      $C_y_A = 5.78; // - aerodynamic characteristic of ?
+      $C_y_Dv = 0.2865; // - aerodynamic characteristic of ?
+      $C_y_M = 0.0; // - aerodynamic characteristic of ?
+      $C_xgp = 0.046; // - aerodynamic characteristic of ?
+      $C_x_A = 0.286; // - aerodynamic characteristic of ?
+      $C_x_M = 0.0; // - aerodynamic characteristic of ?
+
+      $m_z0 = 0.20; // - ?
+      $m_z_vWz = -13; // - ?
+      $m_z_vA = -3.8; // - ?
+      $m_z_A = -1.83; // - ?
+      $m_z_Dv = -0.96; // - ?
+      $m_z_Cy = -0.3166; // - ?
+
+      $P1_Dg = 7003; // - ?
+      $P1_V = -13.8; // - ?
 
       $k_wz = 1.0; // 1 per s - coefficient
       $T_wz = 0.7; // s - transmitting function
-      $ks = 0.112;
-      $xv = -17.86;
+      $ks = 0.112; // - ?
+      $xv = -17.86; // - ?
 
-      $m = $G / $g;
+      $m = $G / $g; // N - Weight
+      $Dal = $al[1] - 0.24;
+
+      $C_ygp = (2 * $G) / ($S * $pr * pow($V, 2));z
+      $M_gp = $V / $a_n;
+      $D_ny = $m_z_Cy + (($pr * $S * $b_a) / (2 * $m)) * $m_z_vWz;
+      $D_v = $m_z_Cy * (1 + $C_y_M * ($M_gp / (2 * $C_ygp)) - $m_z_M * ($M_gp / (2 * $C_ygp));
+      $W_V = ($g / $V) * sqrt((2 * $D_v) / $D_ny);
+      $T_V = (2 * pi) / $W_V;
 
       $C = array(1 => 0);
+      $e = array(1 => 0);
 
-      $C[1] = (- ($M_vWz_z / $Iz)) * $S * pow($b_a, 2) * (($pr * $v0) / 2);
-      $C[2] = (- ($M_A_z / $Iz)) * $S * $b_a * (($pr * pow($v0, 2)) / 2);
-      $C[3] = (- ($M_Dv_z / $Iz)) * $S * $b_a * (($pr * pow($v0, 2)) / 2);
-      $C[4] = ( (($C_A_y + $C_x) / $m)) * $S * (($pr * $v0) / 2);
-      $C[5] = (- ($M_vA_z / $Iz)) * $S * pow($b_a, 2) * (($pr * $v0) / 2);
-      $C[9] = ( (($C_Dv_y) / $m)) * $S * (($pr * $v0) / 2);
-      $C[16] = $v0 / (57.3 * $g);
+      $C[1] = (- ($m_z_vWz / $Iz)) * $S * pow($b_a, 2) * (($pr * $V) / 2);
+      $C[2] = (- ($m_z_A / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
+      $C[3] = (- ($m_z_Dv / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
+      $C[4] = ( (($C_y_A + $C_xgp) / $m)) * $S * (($pr * $V) / 2);
+      $C[5] = (- ($m_z_vA / $Iz)) * $S * pow($b_a, 2) * (($pr * $V) / 2);
+      $C[6] = $V / 57.3;
+      $C[7] = $g / 57.3;
+      $C[8] = (($C_x_A + $C_ygp) / (57.3 * $m)) * $S * (($pr * pow($V, 2)) / 2);
+      $C[9] = ( (($C_y_Dv) / $m)) * $S * (($pr * $V) / 2);
+      $C[16] = $V / (57.3 * $g);
+      $C[17] = (- (($C_y_A * $Dal) / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
+      $C[18] = (- (($C_y_Dv * $Dal) / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
+      $C[19] = ($n_dv * $P1_Dg) / (57.3 * $m);
+
+      $e[1] = ($C_xgp + (($C_x_M * $M_gp) / 2) - (($n_dv * $P1_V) / ($pr * $V * $S))) * $S * (($pr * $V) / $m);
+      $e[2] = ($C_ygp + (($C_y_M * $M_gp) / 2)) * $S * ((57.3 * $pr) / $m);
+      $e[3] = (-(57.3 / $Iz)) * ((($m_z_M / $a) + ((2 * $C_xgp * $Y_dv) / ( $V * $b_a))) * $S * $b_a * (($pr * pow($V, 2)) / 2) - $n_dv * $P1_V * $Y_dv);
 
       echo "<p>" . var_dump($C) . "</p>";
+      echo "<p>" . var_dump($e) . "</p>";
 
       $graph_dat = array_fill(1,3,array());
 
