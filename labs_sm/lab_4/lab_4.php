@@ -1,5 +1,5 @@
 <?php
-require ".\helpers.php";
+require ".\\topics.php";
 Page::TopHead("Lab 4");
 
     class RL_CODE {
