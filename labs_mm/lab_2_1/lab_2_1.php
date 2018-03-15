@@ -58,7 +58,7 @@
         $td = 0; // s - output time
         $tf = 20.001; // s - flight end time
         $dt = 0.01; // 1 per s - integration step
-        $dd = 0.1; // s - output time
+        $dd = 0.5; // s - output time
 
         echo "<h3 aling=\"left\"> Dempfer value = $demper.</h3>";
 
@@ -145,6 +145,7 @@
       }
     ?>
 
+<!--
 <html>
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -230,6 +231,7 @@
               title: 'pitch angle',
               subtitle: 'for 3 damper modes'
             },
+            curveType: 'function',
             width: 1000,
             height: 1000,
             colors: ['red', 'green', 'cyan']
@@ -290,6 +292,156 @@
     <div id="chart_div_b"></div>
     <div id="chart_div_c"></div>
     <br/>
+-->
+
+
+<html>
+   <head>
+      <script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js"></script>
+      <script type = "text/javascript">
+         google.charts.load('current', {packages: ['corechart','line']});  
+      </script>
+   </head>
+   
+   <body>
+      <div id = "chart_div_a" style = "width: 1000px; height: 500px">
+      </div>
+      <div id = "chart_div_b" style = "width: 1000px; height: 500px">
+      </div>
+      <div id = "chart_div_c" style = "width: 1000px; height: 500px">
+      </div>
+      <script language = "JavaScript">
+         function chart_div_a() {
+            // Define the chart to be drawn.
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'flight time');
+            data.addColumn('number', '1 damper');
+            data.addColumn('number', '2 damper');
+            data.addColumn('number', '3 damper');
+            data.addRows([
+              <?php
+                $a = file_get_contents("./data1.json");
+                $a1 = file_get_contents("./data2.json");
+                $a2 = file_get_contents("./data3.json");
+                $json_a = json_decode($a, true);
+                $json_a1 = json_decode($a1, true);
+                $json_a2 = json_decode($a2, true);
+
+                for ($i = 0; $i <= (count($json_a)-1); $i++) {
+                  echo "["
+                  . $json_a[$i]['time'] . ",  "
+                  . $json_a[$i]['alf'] . ", "
+                  . $json_a1[$i]['alf'] . ", "
+                  . $json_a2[$i]['alf']
+                  . "],";
+                }
+              ?>
+            ]);
+            
+            // Set chart options
+            var options = {
+              'title' : 'attack angle',
+              'width': 1000,
+              'height': 500,
+              curveType: 'function',
+              colors: ['red', 'green', 'blue']
+            };
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div_a'));
+            chart.draw(data, options);
+         }
+         google.charts.setOnLoadCallback(chart_div_a);
+
+         function chart_div_b() {
+            // Define the chart to be drawn.
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'flight time');
+            data.addColumn('number', '1 damper');
+            data.addColumn('number', '2 damper');
+            data.addColumn('number', '3 damper');
+            data.addRows([
+              <?php
+                $a = file_get_contents("./data1.json");
+                $a1 = file_get_contents("./data2.json");
+                $a2 = file_get_contents("./data3.json");
+                $json_a = json_decode($a, true);
+                $json_a1 = json_decode($a1, true);
+                $json_a2 = json_decode($a2, true);
+
+                for ($i = 0; $i <= (count($json_a)-1); $i++) {
+                  echo "["
+                  . $json_a[$i]['time'] . ",  "
+                  . $json_a[$i]['tang'] . ", "
+                  . $json_a1[$i]['tang'] . ", "
+                  . $json_a2[$i]['tang']
+                  . "],";
+                }
+              ?>
+            ]);
+            
+            // Set chart options
+            var options = {
+              'title' : 'pitch angle', //tangaj
+              'width': 1000,
+              'height': 500,
+              curveType: 'function',
+              colors: ['red', 'green', 'blue']
+            };
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div_b'));
+            chart.draw(data, options);
+         }
+         google.charts.setOnLoadCallback(chart_div_b);
+
+         function chart_div_c() {
+            // Define the chart to be drawn.
+            var data = new google.visualization.DataTable();
+            data.addColumn('number', 'flight time');
+            data.addColumn('number', '1 damper');
+            data.addColumn('number', '2 damper');
+            data.addColumn('number', '3 damper');
+            data.addRows([
+              <?php
+                $a = file_get_contents("./data1.json");
+                $a1 = file_get_contents("./data2.json");
+                $a2 = file_get_contents("./data3.json");
+                $json_a = json_decode($a, true);
+                $json_a1 = json_decode($a1, true);
+                $json_a2 = json_decode($a2, true);
+
+                for ($i = 0; $i <= (count($json_a)-1); $i++) {
+                  echo "["
+                  . $json_a[$i]['time'] . ",  "
+                  . $json_a[$i]['n_y'] . ", "
+                  . $json_a1[$i]['n_y'] . ", "
+                  . $json_a2[$i]['n_y']
+                  . "],";
+                }
+              ?>
+            ]);
+            
+            // Set chart options
+            var options = {
+              'title' : 'vertical overloading', 
+              'width': 1000,
+              'height': 500,
+              curveType: 'function',
+              colors: ['red', 'green', 'blue']
+            };
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div_c'));
+            chart.draw(data, options);
+         }
+         google.charts.setOnLoadCallback(chart_div_c);
+
+
+      </script>
+   </body>
+</html>
+
     <?php
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
           echo
