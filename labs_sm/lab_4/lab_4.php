@@ -10,11 +10,17 @@ Page::TopHead("Lab 4");
         public $before_dot_bin;
         public $after_dot_bin;
 
+        public $bd_array = array();
+        public $ad_array = array();
+
         public $before_dot_rl;
         public $after_dot_rl;
 
         public $ifnegative;
         public $amount;
+
+        public $length_bd_rl;
+        public $length_ad_rl;
 
         function __construct($number) {
             
@@ -56,29 +62,43 @@ Page::TopHead("Lab 4");
     
                     if(($length < strlen($after_dot_dec)) /*|| (intval($after_dot_dec) == (10 ** $length))*/ ){
     
-                        $this->after_dot_bin .= '1'; 
+                        $this->after_dot_bin .= "1"; 
                         $after_dot_dec -= (10 ** $length);
 
                     } elseif((intval($after_dot_dec) != (10 ** $length)) && ($length == strlen($after_dot_dec)) && ($length != 0)) {
     
-                        $this->after_dot_bin .= '0'; 
+                        $this->after_dot_bin .= "0"; 
                     }
                     $length = strlen($after_dot_dec);
                 }
             }
         }
 
+        function MoveToArray() {
+
+            $this->length_bd_rl = strlen($this->before_dot_bin);
+            $this->length_ad_rl = strlen($this->after_dot_bin);
+
+            for($i = 0; $i < $this->length_bd_rl; $i++) {
+
+                $this->bd_array[$i] = $this->before_dot_bin[$i];
+            }
+
+            for($i = 0; $i < $this->length_ad_rl; $i++) {
+
+                $this->ad_array[$i] = $this->after_dot_bin[$i];
+            }
+        }
+
         function MoveToRL() {
 
-            $this->before_dot_rl = $this->before_dot_bin;
+            $this->before_dot_rl = $this->bd_array;
 
-            $length_bd_rl = intval(strlen($this->before_dot_rl));
+            for($itt = 0; $itt < $this->length_bd_rl; $itt++){
 
-            for($itt = 0; $itt < strlen($this->before_dot_rl); $itt++){
+                $itt_rl = $this->length_bd_rl - $itt - 1;
 
-                $itt_rl = $length_bd_rl - $itt - 1;
-
-                if($this->before_dot_rl[$itt] == '1'){
+                if($this->before_dot_rl[$itt] == "1"){
 
                     $this->before_dot_rl[$itt] = $itt_rl;
                     $this->amount++;
@@ -90,21 +110,19 @@ Page::TopHead("Lab 4");
 
             if($this->after_dot != ""){
 
-                $this->after_dot_rl = $this->after_dot_bin;
+                $this->after_dot_rl = $this->ad_array;
 
-                $length_ad_rl = intval(strlen($this->after_dot_rl));
-
-                for($itt = 0; $itt < strlen($this->after_dot_rl); $itt++){
+                for($itt = 0; $itt < $this->length_ad_rl; $itt++){
 
                     $itt_rl = $itt + 1;
 
-                    if($this->after_dot_rl[$itt] == '1'){
+                    if($this->after_dot_rl[$itt] == "1"){
 
-                        $this->after_dot_rl[$itt] = $itt_rl;
+                        $this->after_dot_rl[$itt] = substr_replace($this->after_dot_rl[$itt], $itt_rl, 0);
                         $this->amount++;
                     } else {
 
-                        $this->after_dot_rl[$itt] = 'n';
+                        $this->after_dot_rl[$itt] = "n";
                     }
                 }
             }
@@ -134,7 +152,7 @@ Page::TopHead("Lab 4");
 
             echo "<h3>Your number in RL view: </h3><h4>";
                 echo $this->ifnegative . "." . $this->amount . " ";
-                for($itt = 0, $k = 0; $itt < strlen($this->before_dot_rl); $itt++){
+                for($itt = 0, $k = 0; $itt < $this->length_bd_rl; $itt++){
                         
                     if($this->before_dot_rl[$itt] != "n"){
 
@@ -150,11 +168,12 @@ Page::TopHead("Lab 4");
                 }
                 if($this->after_dot != "") {
 
-                    for($itt = 0, $k = 0; $itt < strlen($this->after_dot_rl); $itt++){
+                    for($itt = 0, $k = 0; $itt < $this->length_ad_rl; $itt++){
                             
                         if($this->after_dot_rl[$itt] != "n"){
 
-                            echo  "." . -$this->after_dot_rl[$itt];
+                            echo  ".-";
+                            print $this->after_dot_rl[$itt];
                         }
                     }
                 }
@@ -165,6 +184,7 @@ Page::TopHead("Lab 4");
     $n = new RL_CODE($_POST['n']);
 
     $n->MoveToBinary();
+    $n->MoveToArray();
     $n->MoveToRL();
     $n->DisplayResults();
 

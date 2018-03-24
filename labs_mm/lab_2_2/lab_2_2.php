@@ -37,7 +37,9 @@
       $m_z_A = -1.83; // - ?
       $m_z_Dv = -0.96; // - ?
       $m_z_Cy = -0.3166; // - ?
+      $m_z_M = 0; // - ?
 
+      $Dg = 1;
       $P1_Dg = 7003; // - ?
       $P1_V = -13.8; // - ?
 
@@ -47,14 +49,14 @@
       $xv = -17.86; // - ?
 
       $m = $G / $g; // N - Weight
-      $Dal = $al[1] - 0.24;
+      $Dal = ($al[0] / 100) - 0.24;
 
-      $C_ygp = (2 * $G) / ($S * $pr * pow($V, 2));z
+      $C_ygp = (2 * $G) / ($S * $pr * pow($V, 2));
       $M_gp = $V / $a_n;
       $D_ny = $m_z_Cy + (($pr * $S * $b_a) / (2 * $m)) * $m_z_vWz;
-      $D_v = $m_z_Cy * (1 + $C_y_M * ($M_gp / (2 * $C_ygp)) - $m_z_M * ($M_gp / (2 * $C_ygp));
+      $D_v = $m_z_Cy * (1 + $C_y_M * ($M_gp / (2 * $C_ygp))) - $m_z_M * ($M_gp / (2 * $C_ygp));
       $W_V = ($g / $V) * sqrt((2 * $D_v) / $D_ny);
-      $T_V = (2 * pi) / $W_V;
+      $T_V = (2 * M_PI) / $W_V;
 
       $C = array(1 => 0);
       $e = array(1 => 0);
@@ -62,35 +64,37 @@
       $C[1] = (- ($m_z_vWz / $Iz)) * $S * pow($b_a, 2) * (($pr * $V) / 2);
       $C[2] = (- ($m_z_A / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
       $C[3] = (- ($m_z_Dv / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
-      $C[4] = ( (($C_y_A + $C_xgp) / $m)) * $S * (($pr * $V) / 2);
+      $C[4] = (($C_y_A + $C_xgp) / $m) * $S * (($pr * $V) / 2);
       $C[5] = (- ($m_z_vA / $Iz)) * $S * pow($b_a, 2) * (($pr * $V) / 2);
       $C[6] = $V / 57.3;
       $C[7] = $g / 57.3;
-      $C[8] = (($C_x_A + $C_ygp) / (57.3 * $m)) * $S * (($pr * pow($V, 2)) / 2);
+      $C[8] = (($C_x_A - $C_ygp) / (57.3 * $m)) * $S * (($pr * pow($V, 2)) / 2);
       $C[9] = ( (($C_y_Dv) / $m)) * $S * (($pr * $V) / 2);
       $C[16] = $V / (57.3 * $g);
       $C[17] = (- (($C_y_A * $Dal) / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
       $C[18] = (- (($C_y_Dv * $Dal) / $Iz)) * $S * $b_a * (($pr * pow($V, 2)) / 2);
-      $C[19] = ($n_dv * $P1_Dg) / (57.3 * $m);
+      $C[19] = (-($n_dv * $P1_Dg) / (57.3 * $m));
 
       $e[1] = ($C_xgp + (($C_x_M * $M_gp) / 2) - (($n_dv * $P1_V) / ($pr * $V * $S))) * $S * (($pr * $V) / $m);
       $e[2] = ($C_ygp + (($C_y_M * $M_gp) / 2)) * $S * ((57.3 * $pr) / $m);
-      $e[3] = (-(57.3 / $Iz)) * ((($m_z_M / $a) + ((2 * $C_xgp * $Y_dv) / ( $V * $b_a))) * $S * $b_a * (($pr * pow($V, 2)) / 2) - $n_dv * $P1_V * $Y_dv);
+      $e[3] = (-(57.3 / $Iz)) * ((($m_z_M / $a_n) + ((2 * $C_xgp * $Y_dv) / ( $V * $b_a))) * $S * $b_a * (($pr * pow($V, 2)) / 2) - $n_dv * $P1_V * $Y_dv);
 
       echo "<p>" . var_dump($C) . "</p>";
       echo "<p>" . var_dump($e) . "</p>";
 
-      $graph_dat = array_fill(1,3,array());
+      $graph_dat = array_fill(0,3,array());
 
-      for($demper = 1; $demper <= 3; $demper++){
+      for($alignment = 0; $alignment <= 2; $alignment++){
 
         $t = 0; // s - flight time
         $td = 0; // s - output time
-        $tf = 20.001; // s - flight end time
+        $tf = 180.001; // s - flight end time
         $dt = 0.01; // 1 per s - integration step
-        $dd = 0.1; // s - output time
+        $dd = 2; // s - output time
+        $wx = -5;
+        $V1 = 0;
 
-        echo "<h3 aling=\"left\"> Dempfer value = $demper.</h3>";
+        echo "<h3 aling=\"left\"> Alignment value = $alignment.</h3>";
 
         $X = array (1 => 0);
         $Y = array (1 => 0);
@@ -100,12 +104,14 @@
         $X[3] = 0;
         $X[4] = 0;
         $X[5] = 0;
+        $X[6] = 0;
 
         $Y[1] = 0;
         $Y[2] = 0;
         $Y[3] = 0;
         $Y[4] = 0;
         $Y[5] = 0;
+        $Y[6] = 0;
 
         $n_y = 0;
         $dv = 0;
@@ -115,37 +121,43 @@
         "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
         <tr>
           <th>T</th>
-          <th>XV</th>
+          <th>WX</th>
           <th>DV</th>
+          <th>DG</th>
           <th>ALF</th>
           <th>TANG</th>
-          <th>N_y</th>
+          <th>KSI</th>
+          <th>NY</th>
+          <th>H</th>
+          <th>V</th>
+          <th>VK</th>
         </tr>";
 
         for($t; $t <= $tf; $t+=$dt){
 
-            $X[1] = $Y[2];
-            $X[2] = -$C[1] * $Y[2] - $C[2] * $Y[4] - $C[5] * $X[4] - $C[3] * $dv;
-            $X[3] = $C[4] * $Y[4] + $C[9] * $dv;
-            $X[4] = $X[1] - $X[3];
-            $n_y = $C[16] * $X[3];
+            $X[1] = -$e[1] * $V1 - $C[8] * $Y[5] - $C[7] * $Y[2] - $C[19] * $Dg;
+            $X[2] = $X[3];
+            $X[3] = -$C[1] * $Y[3] - $C[2] * $Y[5] - $C[5] * $X[5] - $C[3] * $dv;
+            $X[4] = $C[4] * $Y[5] + $C[9] * $dv;
+            $X[5] = $X[2] - $X[4];
+            $X[6] = $C[6] * $Y[4];
+            $V1 = $Y[1] - $wx;
+            $n_y = $C[16] * $X[4];
 
-            for($i = 1; $i <= 4; $i++){
+            for($i = 1; $i <= 6; $i++){
                 $Y[$i] += $X[$i] * $dt;
             }
 
-            $mode = $demper;
+            $mode = $alignment;
 
             switch($mode){
-                case 1:
+                case 0:
                 $dvd = 0;
                 break;
-                case 2:
+                case 1:
                 $dvd = $k_wz * $Y[2];
                 break;
-                case 3:
-                $X[5] = $dvd;
-                $Y[5] += $X[5] * $dt;
+                case 2:
                 $dvd = $k_wz * $Y[2] - ($Y[5]/$T_wz);
                 break;
             }
@@ -154,7 +166,7 @@
             $dv = $dvs + $dvd;
 
             for($t; $t >= $td; $td+=$dd){
-              array_push($graph_dat[$demper], ["time"=>$td, "alf"=>$Y[4], "tang"=>$Y[1], "n_y"=>$n_y]);
+              array_push($graph_dat[$alignment], ["time"=>$td, "alf"=>$Y[4], "tang"=>$Y[1], "n_y"=>$n_y]);
                 echo  "<tr>
                 <td>" . number_format($td, 1, '.', ' ') . "</td>
                 <td>$xv</td>
@@ -168,9 +180,9 @@
         }
         echo "</table>";
 
-        $graph_dat_file = 'data' . $demper . '.json';
+        $graph_dat_file = 'data' . $alignment . '.json';
         $handle = fopen($graph_dat_file, 'w') or die ('Cannot open file: ' . $graph_dat_file);
-        $graph_content = json_encode($graph_dat[$demper]);
+        $graph_content = json_encode($graph_dat[$alignment]);
         fwrite($handle, $graph_content);
       }
     ?>
@@ -194,9 +206,9 @@
 
         data.addRows([
         <?php
-          $a = file_get_contents("./data1.json");
-          $a1 = file_get_contents("./data2.json");
-          $a2 = file_get_contents("./data3.json");
+          $a = file_get_contents("./data0.json");
+          $a1 = file_get_contents("./data1.json");
+          $a2 = file_get_contents("./data2.json");
           $json_a = json_decode($a, true);
           $json_a1 = json_decode($a1, true);
           $json_a2 = json_decode($a2, true);
@@ -237,9 +249,9 @@
 
           data.addRows([
           <?php
-            $a = file_get_contents("./data1.json");
-            $a1 = file_get_contents("./data2.json");
-            $a2 = file_get_contents("./data3.json");
+            $a = file_get_contents("./data0.json");
+            $a1 = file_get_contents("./data1.json");
+            $a2 = file_get_contents("./data2.json");
             $json_a = json_decode($a, true);
             $json_a1 = json_decode($a1, true);
             $json_a2 = json_decode($a2, true);
@@ -280,9 +292,9 @@
 
           data.addRows([
           <?php
-            $a = file_get_contents("./data1.json");
-            $a1 = file_get_contents("./data2.json");
-            $a2 = file_get_contents("./data3.json");
+            $a = file_get_contents("./data0.json");
+            $a1 = file_get_contents("./data1.json");
+            $a2 = file_get_contents("./data2.json");
             $json_a = json_decode($a, true);
             $json_a1 = json_decode($a1, true);
             $json_a2 = json_decode($a2, true);
