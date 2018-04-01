@@ -37,6 +37,11 @@
       $xv = -17.86;
 
       $m = $G / $g;
+      $C_ybal = (2 * $G) / ($S * $pr * pow($v0, 2));
+      $A_bal = 57.3 * (($C_ybal - $C_y0) / $C_A_y);
+      $Dv_bal = -57.3 * (($M_z0 + (($M_A_z * $A_bal) / 57.3) + $C_ybal * (($al / 100) - 0.24)) / $M_Dv_z);
+      $O_ny = ($M_A_z / $C_A_y) + (($pr * $S * $b_a) / (2 * $m)) * $M_vWz_z;
+      $Dv_ny = -57.3 * $O_ny * ($C_ybal / $M_Dv_z);
 
       $C = array(1 => 0);
 
@@ -143,6 +148,33 @@
         $graph_content = json_encode($graph_dat[$demper]);
         fwrite($handle, $graph_content);
       }
+      echo
+      "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
+       <tr>
+        <th rowspan=\"2\">C_Ybal</th>
+        <th rowspan=\"2\">A_bal</th>
+        <th colspan=\"2\">D_vbal</th>
+        <th colspan=\"2\">t_ppa</th>
+        <th colspan=\"2\">T_a</th>
+        <th colspan=\"3\">D_ny_v</th>
+       </tr>
+       <tr>
+        <th>analyt design</th>
+        <th>real obj</th>
+        <th>model</th>
+        <th>real obj</th>
+        <th>model</th>
+        <th>real obj</th>
+        <th>analyt design</th>
+        <th>model</th>
+        <th>real obj</th>
+       </tr>
+       <tr>
+        <td>" . number_format($C_ybal, 2, '.', ' ') . "</td> <td>" . number_format($A_bal, 2, '.', ' ') . "</td> <td>" . number_format($Dv_bal, 2, '.', ' ') . "</td> <td>0</td> <td>6.5</td> <td>2.4</td> <td>3</td> <td>3-4,5</td> <td>" . number_format($Dv_ny, 2, '.', ' ') . "</td> <td>" . number_format(-2 / 0.1941, 2, '.', ' ') . "</td> <td>-11<br/></td>
+       </tr>
+      </table><br/>";
+      echo "<h3>M = " . $v0 / 299.53 . "</h3>";
+      echo "<h2>Vi = " . $v0 * sqrt(($pr * 10)/(0.1249)) . "</h2> "; //НУЖНОПРЕОБРАЗОВАТЬ
     ?>
 
 <!--
@@ -444,32 +476,6 @@
 
     <?php
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-          echo
-          "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
-           <tr>
-            <th rowspan=\"2\">C_Ybal</th>
-            <th rowspan=\"2\">A_bal</th>
-            <th colspan=\"2\">D_vbal</th>
-            <th colspan=\"2\">t_ppa</th>
-            <th colspan=\"2\">T_a</th>
-            <th colspan=\"3\">D_ny_v</th>
-           </tr>
-           <tr>
-            <th>analyt design</th>
-            <th>real obj</th>
-            <th>model</th>
-            <th>real obj</th>
-            <th>model</th>
-            <th>real obj</th>
-            <th>analyt design</th>
-            <th>model</th>
-            <th>real obj</th>
-           </tr>
-           <tr>
-            <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td></td> <td><br/></td>
-           </tr>
-          </table><br/>";
-          echo "<h2>Vi = " . $v0 * sqrt($pr/0.1249) . "</h2> ";
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
       /*$t = 0; // s - flight time
       $td = 0; // s - output time
