@@ -1,6 +1,6 @@
 <?php
 require ".\\topics.php";
-Page::TopHead("Lab 6");
+Page::TopHead("Lab 6_1");
 
     class RL_STRUCT {
 
@@ -17,9 +17,10 @@ Page::TopHead("Lab 6");
         public $rl_general = array();
         public $rl_sorted = array();
         public $rl_combined = array();
+        public $rl_subtructed = array();
 
         public $rl_biggest_amount;
-        public $rl_biggest_number ="A and B";
+        public $rl_biggest_number = "A and B";
         public $general_sign = 0;
         public $general_amount;
         public $combined_amount;
@@ -125,7 +126,19 @@ Page::TopHead("Lab 6");
             $this->rl_a_s = $this->rl_a;
             $this->rl_b_s = $this->rl_b;
 
-            
+            if ($this->rl_biggest_number == "A and B") {
+                $this->rl_subtructed = 0;
+            } elseif ($this->rl_biggest_number == "A") {
+                $this->rl_subtructed = $this->rl_a;
+
+                for ($i = 0; $i < $this->rl_biggest_amount; $i++) {
+
+
+                }
+            } else {
+                $this->rl_subtructed = $this->rl_b;
+                
+            }
         }
 
         function DisplayResults() {

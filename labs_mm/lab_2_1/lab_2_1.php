@@ -70,17 +70,17 @@
         $X = array (1 => 0);
         $Y = array (1 => 0);
 
-        $X[1] = 0;
-        $X[2] = 0;
-        $X[3] = 0;
-        $X[4] = 0;
-        $X[5] = 0;
+        $X[1] = 0; // acceleration Y[1]
+        $X[2] = 0; // acceleration Y[2]
+        $X[3] = 0; // acceleration Y[3]
+        $X[4] = 0; // acceleration Y[4]
+        $X[5] = 0; // acceleration Y[5]
 
-        $Y[1] = 0;
-        $Y[2] = 0;
-        $Y[3] = 0;
-        $Y[4] = 0;
-        $Y[5] = 0;
+        $Y[1] = 0; // pitch angle
+        $Y[2] = 0; // pitch angle speed
+        $Y[3] = 0; // trajectory inclination 
+        $Y[4] = 0; // drive (attack) angle
+        $Y[5] = 0; // Dvd (helm inclination by pitch dempfer)
 
         $n_y = 0;
         $dv = 0;
