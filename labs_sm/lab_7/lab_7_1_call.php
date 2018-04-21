@@ -1,11 +1,11 @@
 <html>
     <head>
         <title>
-            Lab_6_2 Subtraction
+            Lab_7_1 Multiplication
         </title>
     </head>
     <body>
-        <form action="lab_6_2.php" method="post">
+        <form action="lab_7_1.php" method="post">
             <h4>Enter RLnumber A:</h4>
             <input type="text" name="as" size="2"/>.<input type="text" name="aa" size="2"/>&nbsp
                 <input type="text" name="a0" size="2"/>.<input type="text" name="a1" size="2"/>.<input type="text" name="a2" size="2"/>.<input type="text" name="a3" size="2"/>.<input type="text" name="a4" size="2"/>.<input type="text" name="a5" size="2"/>.<input type="text" name="a6" size="2"/>.<input type="text" name="a7" size="2"/>.<input type="text" name="a8" size="2"/>.<input type="text" name="a9" size="2"/>.<input type="text" name="a10" size="2"/>.<input type="text" name="a11" size="2"/><br />

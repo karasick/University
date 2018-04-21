@@ -19,7 +19,7 @@
       $V = 97.2; // m per s - speed
       $h = 500; // m - height
       $pr = 0.1190; // (kg * s^2) per m^2 - pressure
-      $a_n = 338.36; // m per s - ?
+      $a_n = 338.36; // m per s - sound velocity
 
       $g = 9.81; // m per s^2 - gravitational acceleration
 

@@ -2,159 +2,156 @@
 require ".\\topics.php";
 Page::TopHead("Lab 6_2");
 
-    class RL_CODE {
+    class RL_STRUCT {
 
-        public $before_dot;
-        public $after_dot;
+        public $a_sign;
+        public $a_amount;
+        public $rl_a = array();
 
-        public $before_dot_bin;
-        public $after_dot_bin;
+        public $b_sign;
+        public $b_amount;
+        public $rl_b = array();
 
-        public $bd_array = array();
-        public $ad_array = array();
+        public $rl_general = array();
+        public $rl_subtracted = array();
+        public $rl_subtract = array();
 
-        public $before_dot_rl;
-        public $after_dot_rl;
+        public $rl_biggest_amount;
+        public $rl_biggest_number = "A and B";
+        public $general_sign = 0;
+        public $subtracted_amount = 0;
 
-        public $ifnegative;
-        public $amount;
+        function CreationRL() {
 
-        public $length_bd_rl;
-        public $length_ad_rl;
+            $this->a_sign = $_POST['as'];
+            $this->a_amount = $_POST['aa'];
 
-        function __construct($number) {
-            
-            $length = strlen($number);
-            $preparts = explode("-", $number);
+            $this->b_sign = $_POST['bs'];
+            $this->b_amount = $_POST['ba'];
 
-            if($length > strlen($preparts[0])) {
-                $this->ifnegative = 1;
-                $parts = explode(".", $preparts[1]);
+            if($this->a_amount >= $this->b_amount) {
+                $this->rl_biggest_amount = $this->a_amount;
             } else {
-                $this->ifnegative = 0;
-                $parts = explode(".", $preparts[0]);
+                $this->rl_biggest_amount = $this->b_amount;
             }
 
-            if(count($parts) == 1) {
-                $this->before_dot = $parts[0];
-                $this->after_dot = "";
-            } else {
-                $this->before_dot = $parts[0];
-                $this->after_dot = $parts[1];
-            }
-        }
+            for($i = 0; $i < $this->a_amount; $i++) {
 
-        function MoveToBinary() {
-
-            $this->before_dot_bin = decbin($this->before_dot);
-
-            if($this->after_dot != "") {
-                $after_dot_dec = $this->after_dot;
-                $length = strlen($after_dot_dec);
-
-                for($i = 1; $i <= intval($_POST['ad']); $i++) {
-    
-                    $after_dot_dec = intval($after_dot_dec) * 2;
-    
-                    if(($length < strlen($after_dot_dec)) /*|| (intval($after_dot_dec) == (10 ** $length))*/ ) {
-                        $this->after_dot_bin .= "1"; 
-                        $after_dot_dec -= (10 ** $length);
-
-                    } elseif((intval($after_dot_dec) != (10 ** $length)) && ($length == strlen($after_dot_dec)) && ($length != 0)) {
-                        $this->after_dot_bin .= "0"; 
-                    }
-                    $length = strlen($after_dot_dec);
-                }
-            }
-        }
-
-        function MoveToArray() {
-
-            $this->length_bd_rl = strlen($this->before_dot_bin);
-            $this->length_ad_rl = strlen($this->after_dot_bin);
-
-            for($i = 0; $i < $this->length_bd_rl; $i++) {
-
-                $this->bd_array[$i] = $this->before_dot_bin[$i];
-            }
-
-            for($i = 0; $i < $this->length_ad_rl; $i++) {
-
-                $this->ad_array[$i] = $this->after_dot_bin[$i];
-            }
-        }
-
-        function MoveToRL() {
-
-            $this->before_dot_rl = $this->bd_array;
-
-            for($itt = 0; $itt < $this->length_bd_rl; $itt++) {
-
-                $itt_rl = $this->length_bd_rl - $itt - 1;
-
-                if($this->before_dot_rl[$itt] == "1") {
-                    $this->before_dot_rl[$itt] = $itt_rl;
-                    $this->amount++;
+                if($_POST['a' . $i] != NULL) {
+                    $this->rl_a[$i] = $_POST['a' . $i];
                 } else {
-                    $this->before_dot_rl[$itt] = "n";
+                    $this->rl_a[$i] = NULL;
                 }
             }
 
-            if($this->after_dot != "") {
-                $this->after_dot_rl = $this->ad_array;
+            for($i = 0; $i < $this->b_amount; $i++){
 
-                for($itt = 0; $itt < $this->length_ad_rl; $itt++) {
+                if($_POST['b' . $i] != NULL) {
+                    $this->rl_b[$i] = $_POST['b' . $i];
+                } else {
+                    $this->rl_b[$i] = NULL;
+                }
+            }
+        }
 
-                    $itt_rl = $itt + 1;
 
-                    if($this->after_dot_rl[$itt] == "1") {
-                        $this->after_dot_rl[$itt] = substr_replace($this->after_dot_rl[$itt], $itt_rl, 0);
-                        $this->amount++;
-                    } else {
-                        $this->after_dot_rl[$itt] = "n";
+        function ComparisonRLs() {
+
+            for($i = 0; $i < $this->rl_biggest_amount; $i++) {
+                if(intval($this->rl_a[$i]) > intval($this->rl_b[$i])) {
+                    $this->rl_biggest_number = "A";
+                    break;
+                } else if(intval($this->rl_a[$i]) < intval($this->rl_b[$i])) {
+                    $this->rl_biggest_number = "B";
+                    break;
+                }
+            }
+        }
+
+        function Subtraction() {
+
+            if($this->rl_biggest_number == "A and B") {
+                $this->rl_subtracted = 0;
+                $this->subtracted_amount = 0;
+                return;
+            } elseif($this->rl_biggest_number == "A") {
+                $this->rl_subtract = $this->rl_b;
+                $this->rl_subtracted = $this->rl_a;
+            } elseif($this->rl_biggest_number == "B") {
+                $this->rl_subtract = $this->rl_a;
+                $this->rl_subtracted = $this->rl_b;
+            }
+            
+            for($i = $this->a_amount - 1; $i >= 0; $i--) {
+                for($j = $this->b_amount - 1; $j >= 0; $j--) {
+
+                    if($this->rl_subtract == NULL) {
+                        break 2;
+                    }
+
+                    if(intval($this->rl_subtracted[$i]) == intval($this->rl_subtract[$j])) {
+                        array_splice($this->rl_subtracted, $i, 1);
+                        array_splice($this->rl_subtract, $j, 1);
+                        $i--;
+                    } elseif(intval($this->rl_subtracted[$i]) > intval($this->rl_subtract[$j])) {
+                        $repls = array_fill(0,2,$this->rl_subtracted[$i] - 1);
+                        array_splice($this->rl_subtracted, $i, 1, $repls);
+                        $j++;
+                        $i++;
+                    } elseif(intval($this->rl_subtracted[$i]) < intval($this->rl_subtract[$j])) {
+                        $i--;
+                        $j++;
                     }
                 }
             }
+            
+            $this->subtracted_amount = count($this->rl_subtracted);
         }
 
         function DisplayResults() {
 
-            echo "<h3>Your 1 number: </h3><h4>" . $_POST['n1'] . "</h4>";
+            echo "<h3>RLnumber A:</h3> <h4>";
+            echo $this->a_sign . "." . $this->a_amount . " " . $this->rl_a[0];
+            for($i = 1; $i < count($this->rl_a); $i++) {
 
-            echo "<h3>Your 2 number: </h3><h4>" . $_POST['n2'] . "</h4>";
+                if($this->rl_a[$i] != NULL) {
+                    echo "." . $this->rl_a[$i];
+                }
+            }
+            echo "</h4>";
 
-            echo "<h3>Subtraction of this numbers in RL view: </h3><h4>";
-                echo $this->ifnegative . "." . $this->amount . " ";
-                for($itt = 0, $k = 0; $itt < $this->length_bd_rl; $itt++){
-                        
-                    if((string) $this->before_dot_rl[$itt] != "n") {
-                        if($k == 0) {
-                            echo $this->before_dot_rl[$itt];
-                            $k++;
-                        } else {
-                            echo  "." . $this->before_dot_rl[$itt];
-                        }
-                    }
+            echo "<h3>RLnumber B:</h3> <h4>";
+            echo $this->b_sign . "." . $this->b_amount . " " . $this->rl_b[0];
+            for($i = 1; $i < count($this->rl_b); $i++) {
+
+                if($this->rl_b[$i] != NULL) {
+                    echo "." . $this->rl_b[$i];
                 }
-                if($this->after_dot != "") {
-                    for($itt = 0, $k = 0; $itt < $this->length_ad_rl; $itt++){
-                            
-                        if($this->after_dot_rl[$itt] != "n") {
-                            echo  ".-";
-                            print $this->after_dot_rl[$itt];
-                        }
-                    }
+            }
+            echo "</h4>";
+
+            echo "<h3>The biggest RLnumber is: </h3>" . "<h4>";
+            printf($this->rl_biggest_number) ;
+            echo "</h4>";
+
+            echo "<h3>Subtructed RLnumber:</h3> <h4>";
+            echo $this->general_sign . "." . $this->subtracted_amount . " " . $this->rl_subtracted[0];
+            for($i = 1; $i < $this->subtracted_amount; $i++) {
+
+                if((string)$this->rl_subtracted[$i] != NULL) {
+                    echo "." . $this->rl_subtracted[$i];
                 }
-            echo "</h4><br/>";
+            }
+            echo "</h4>";
         }
     }
 
-    $n = new RL_CODE(strval(round(($_POST['n1'] - $_POST['n2']), 10)));
+    $rl = new RL_STRUCT();
 
-    $n->MoveToBinary();
-    $n->MoveToArray();
-    $n->MoveToRL();
-    $n->DisplayResults();
+    $rl->CreationRL();
+    $rl->ComparisonRLs();
+    $rl->Subtraction();
+    $rl->DisplayResults();
 
 Page::Bottom();
 ?>

@@ -1,26 +1,26 @@
 <?php
 require ".\\topics.php";
-Page::TopHead("Lab 5");
+Page::TopHead("Lab 7_1");
 
     class RL_STRUCT {
 
         public $a_sign;
         public $a_amount;
         public $rl_a = array();
+
         public $b_sign;
         public $b_amount;
         public $rl_b = array();
 
         public $rl_general = array();
+        public $rl_multiplicated = array();
         public $rl_sorted = array();
         public $rl_combined = array();
 
         public $rl_biggest_amount;
-        public $general_sign = 0;
-        public $general_amount;
-        public $combined_amount;
-
         public $rl_biggest_number = "A and B";
+        public $general_sign = 0;
+        public $general_amount = 0;
 
         function CreationRL() {
 
@@ -29,12 +29,6 @@ Page::TopHead("Lab 5");
 
             $this->b_sign = $_POST['bs'];
             $this->b_amount = $_POST['ba'];
-
-            if($this->a_amount >= $this->b_amount) {
-                $this->rl_biggest_amount = $this->a_amount;
-            } else {
-                $this->rl_biggest_amount = $this->b_amount;
-            }
 
             for($i = 0; $i < $this->a_amount; $i++) {
 
@@ -55,39 +49,14 @@ Page::TopHead("Lab 5");
             }
         }
 
-        function CombinationRLs() {
-
-            $this->rl_general = $this->rl_a;
-
-            for($i = 0; $i < count($this->rl_b); $i++) {
-
-                $this->rl_general[count($this->rl_a) + $i] = $this->rl_b[$i];
-            }
-
-            if((intval($this->a_sign) == 1) || (intval($this->b_sign) == 1)) {
-                $this->general_sign = 1;
-            }
-            $this->general_amount = intval($this->a_amount) + intval($this->b_amount);
-
-            $this->rl_sorted = $this->rl_general;
-            sort($this->rl_sorted);
-
-            for($i = 0; $i < count($this->rl_sorted); $i++) {
-
-                if($this->rl_sorted[$i] == NULL) {
-                    unset($this->rl_sorted[$i]);
-                }
-            }
-
-            $this->rl_sorted = array_reverse($this->rl_sorted);
-
-            for($i = 0; $i < count($this->rl_sorted); $i++) {
-
-                $this->rl_sorted[$i] = intval($this->rl_sorted[$i]);
-            }
-        }
 
         function ComparisonRLs() {
+
+            if($this->a_amount >= $this->b_amount) {
+                $this->rl_biggest_amount = $this->a_amount;
+            } else {
+                $this->rl_biggest_amount = $this->b_amount;
+            }
 
             for($i = 0; $i < $this->rl_biggest_amount; $i++) {
                 if(intval($this->rl_a[$i]) > intval($this->rl_b[$i])) {
@@ -99,6 +68,28 @@ Page::TopHead("Lab 5");
                 }
                 
             }
+        }
+
+        function MultiplicationRL() {
+
+            if($this->a_sign >= $this->b_sign) {
+                $this->general_sign = $this->a_sign;
+            } else {
+                $this->general_sign = $this->b_sign;
+            }
+
+            for($i = 0; $i < $this->a_amount; $i++) {
+                for($j = 0; $j < $this->b_amount; $j++, $this->general_amount++) {
+
+                    $this->rl_multiplicated[$this->general_amount] = intval($this->rl_a[$i]) + intval($this->rl_b[$j]);
+                }
+            }
+        }
+
+        function SortRL() {
+
+            $this->rl_sorted = $this->rl_multiplicated;
+            rsort($this->rl_sorted);
         }
 
         function CombineSimilars() {
@@ -144,19 +135,14 @@ Page::TopHead("Lab 5");
             }
             echo "</h4>";
 
-            echo "<h3>The biggest RLnumber is: </h3>" . "<h4>";
-            printf($this->rl_biggest_number) ;
-            echo "</h4>";
+            echo "<h3>Multiplicated RLnumber:</h3> <h4>";
+            echo $this->general_sign . "." . $this->general_amount . " " . $this->rl_multiplicated[0];
+            for($i = 1; $i < count($this->rl_multiplicated); $i++) {
 
-            echo "<h3>General RLnumber:</h3> <h4>";
-            echo $this->general_sign . "." . $this->general_amount . " " . $this->rl_general[0];
-            for($i = 1; $i < count($this->rl_general); $i++) {
-
-                if($this->rl_general[$i] != NULL) {
-                    echo "." . $this->rl_general[$i];
-                }
+                    echo "." . $this->rl_multiplicated[$i];
             }
             echo "</h4>";
+
 
             echo "<h3>Sorted RLnumber:</h3> <h4>";
             echo $this->general_sign . "." . $this->general_amount . " " . $this->rl_sorted[0];
@@ -179,8 +165,9 @@ Page::TopHead("Lab 5");
     $rl = new RL_STRUCT();
 
     $rl->CreationRL();
-    $rl->CombinationRLs();
     $rl->ComparisonRLs();
+    $rl->MultiplicationRL();
+    $rl->SortRL();
     $rl->CombineSimilars();
     $rl->DisplayResults();
 
