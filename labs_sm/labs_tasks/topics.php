@@ -7,10 +7,12 @@ class Page{
         href = \"./code.png\" />
         <title>" . $head . "</title></head><body>";
     }
-    public function Top(){
+
+    function Top(){
         echo "<html><body>";
     }
-    public function Bottom(){
+
+    function Bottom(){
         echo "</body></html>";
     }
 }
