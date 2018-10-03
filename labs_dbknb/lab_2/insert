@@ -1,0 +1,34 @@
+INSERT INTO `boards` (`id`, 
+                      `headline`, 
+                      `type`, 
+                      `description`, 
+                      `amount_of_threads`) 
+VALUES (NULL, '/b/', 'default', Flood, '1');
+
+INSERT INTO `users` (`id`, 
+                     `username`, 
+                     `created_thread`) 
+VALUES (NULL, 'Anonymous', 1);
+
+INSERT INTO `threads` (`id`, 
+                       `bid`, 
+                       `uid`, 
+                       `topic`, 
+                       `subject_text`, 
+                       `amount_of_messages`, 
+                       `amount_of_documents`, 
+                       `creation_date`, 
+                       `last_message_date`) 
+VALUES (NULL, '1', '1', 'Test', 'tast_data', '1', '0', '2018-10-01 11:57:00', '2018-10-01 11:57:00');
+INSERT INTO `messages` (`id`, 
+                        `uid`, 
+                        `tid`, 
+                        `response_to`, 
+                        `text`) 
+VALUES (NULL, '1', '1', NULL, 'tast_data');
+INSERT INTO `linked_documents` (`id`, 
+                                `tid`, 
+                                `mid`, 
+                                `type`, 
+                                `sourse`) 
+VALUES (NULL, '', '', '', '');

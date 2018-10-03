@@ -1,0 +1,57 @@
+CREATE TABLE `university`.`boards` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT , 
+    `headline` VARCHAR(255) NOT NULL , 
+    `type` VARCHAR(255) NOT NULL DEFAULT 'default' , 
+    `description` TEXT NULL , 
+    `amount_of_threads` INT(9) NOT NULL DEFAULT '0' , 
+    PRIMARY KEY (`id`)
+    )
+ENGINE = InnoDB;
+
+CREATE TABLE `university`.`users` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT , 
+    `username` VARCHAR(255) NOT NULL DEFAULT 'Anonymous' , 
+    `created_thread` VARCHAR(255) NULL , 
+    PRIMARY KEY (`id`)
+    ) 
+ENGINE = InnoDB;
+
+CREATE TABLE `university`.`threads` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT , 
+    `bid` INT(9) NOT NULL , 
+    `uid` INT(9) NOT NULL , 
+    `topic` VARCHAR(255) NOT NULL , 
+    `subject_text` TEXT NOT NULL , 
+    `amount_of_messages` INT(9) NOT NULL DEFAULT '1' , 
+    `amount_of_documents` INT(9) NOT NULL DEFAULT '0' , 
+    `creation_date` DATETIME NOT NULL , 
+    `last_message_date` DATETIME NOT NULL , 
+    PRIMARY KEY (`id`), 
+    FOREIGN KEY (`bid`) REFERENCES boards(`id`), 
+    FOREIGN KEY (`uid`) REFERENCES users(`id`)
+    )
+ENGINE = InnoDB;
+
+CREATE TABLE `university`.`messages` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT , 
+    `uid` INT(9) NOT NULL , 
+    `tid` INT(9) NOT NULL , 
+    `response_to` INT(9) NULL DEFAULT NULL , 
+    `text` TEXT NOT NULL , 
+    PRIMARY KEY (`id`), 
+    FOREIGN KEY (`uid`) REFERENCES users(`id`), 
+    FOREIGN KEY (`tid`) REFERENCES threads(`id`)
+    ) 
+ENGINE = InnoDB;
+
+CREATE TABLE `university`.`linked_documents` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT , 
+    `tid` INT(9) NOT NULL , 
+    `mid` INT(9) NOT NULL , 
+    `type` VARCHAR(255) NOT NULL , 
+    `sourse` TEXT NOT NULL , 
+    PRIMARY KEY (`id`), 
+    FOREIGN KEY (`tid`) REFERENCES threads(`id`), 
+    FOREIGN KEY (`mid`) REFERENCES messages(`id`)
+    ) 
+ENGINE = InnoDB;
