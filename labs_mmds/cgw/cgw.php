@@ -51,14 +51,21 @@
       $m_y_B = -0.1518;
       $m_y_Dn = -0.071;
       $m_y_De = 0;
-      $m_y_vWx = -0.026;
+      $m_y_vWx = 0.026; # error. it must be equal -0.026 #
+
+      $m_z0 = 0.2;
+      $m_z_vWz = -13;
+      $m_z_vDAlpha = -3.8;
+      $m_z_vAlpha = -1.38;
+      $m_z_Dv = -0.96;
+      $m_z_M = 0;
       
       // for task 2
       $k_Wx = 1.5; // s
       $k_Wy = 2.5; // s
       $T_Wx = 1.6; // s
       $T_Wy = 2.5; // s
-      $k_gamma = 2.0;
+      $k_Roll = 2.0;
       # F_De = +- 12 dergees // Aileron
       # F_Dn = +- 10 dergees // Direction wheel
 
@@ -66,7 +73,8 @@
       $Z0 = 100; // m
       $k_z = 0.02; // degree / m
       $k_Dz = 0.6; // degree / (m / s)
-      # F_gamma = +-20 dergees
+      $T_z = 0.1; // s - .............
+      # F_Roll = +-20 dergees
       # F_z = +-2000 m
       # F_Dz = +-300 m / s
 
@@ -107,41 +115,20 @@
 
         $t = 0; // s - flight time
         $td = 0; // s - output time
-        $tf = 30.001; // s - flight ending time
+        $tf = 110.001; // s - flight ending time
         $dt = 0.01; // 1 per s - integration step
         $dd = 0.1; // s - output step
 
         echo "<h3 aling=\"left\"> Dempfer value = $damper.</h3>";
 
-        $X = array (1 => 0);
-        $Y = array (1 => 0);
+        $X = array_fill(1, 10, 0);
+        $Y = array_fill(1, 10, 0);
 
-        $X[1] = 0; // 	differentiating Y[1]
-        $X[2] = 0; // 	differentiating Y[2]
-        $X[3] = 0; // 	differentiating Y[3]
-        $X[4] = 0; // 	differentiating Y[4]
-        $X[5] = 0; // 	differentiating Y[5]
-        $X[6] = 0; // 	differentiating Y[6]
-        $X[7] = 0; // 	differentiating Y[7]
-        $X[8] = 0; // 	differentiating Y[8]
-
-        $Y[1] = 0; // 
-        $Y[2] = 0; // 
-        $Y[3] = 0; // 
-        $Y[4] = 0; // 
-        $Y[5] = 0; // 
-        $Y[6] = 0; // 
-        $Y[7] = 0; // 
-        $Y[8] = 0; // 
-
+        $Y[6] = $Z0;
         $De = 0;
         $Dn = 0;
         $Ded = 0;
         $Dnd = 0;
-        //$X_s = 1;
-        //$X_n = 1;
-        //$k_se = 1;
-        //$k_sp = 1;
 
         echo
         "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
@@ -155,10 +142,13 @@
           <th>GAMMA</th>
           <th>BETTA</th>
           <th>Z</th>
+          <th>DZ</th>
+          <th>Roll_set</th>
         </tr>";
 
         for($t; $t <= $tf; $t += $dt){
 
+          /*
           if($td < 0.5) {
             $Dnn = 0;
           } elseif($td < 1.5) {
@@ -166,9 +156,24 @@
           } else $Dnn = 0;
 
           $Des = 0;
-
           $De = $Des + $Ded;
           $Dn = $Dnn + $Dnd;
+          */
+
+          if($Dnd < -10) {
+            $Dnd = -10;
+          } elseif($Dnd > 10) {
+            $Dnn = 10;
+          } 
+
+          if($Ded < -12) {
+            $Ded = -12;
+          } elseif($Ded > 12) {
+            $Ded = 12;
+          }
+
+          $De = $Ded;
+          $Dn = $Dnd;
 
             $X[1] = $Y[2];
             $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Y[5] - $a[3] * $Dn - $b[5] * $De;
@@ -193,19 +198,46 @@
                 $X[8] = $Dnd;
                 $Y[7] += $X[7] * $dt;
                 $Y[8] += $X[8] * $dt;
-                $Ded = ($k_Wx * $Y[4]) - ($Y[7]/$T_Wx);
+
+                if($Y[6] < -2000) {
+                  $Z = -2000;
+                } elseif($Y[6] > 2000) {
+                  $Z = 2000;
+                } else {
+                  $Z = $Y[6];
+                }
+
+                if($X[6] < -300) {
+                  $DZ = -300;
+                } elseif($X[6] > 300) {
+                  $DZ = 300;
+                } else {
+                  $DZ = $X[6];
+                }
+
+                $Roll_set = $k_z * $Z + $k_Dz * $DZ;
+                if($Roll_set < -300) {
+                  $Roll_set = -300;
+                } elseif($Roll_set > 300) {
+                  $Roll_set = 300;
+                } else {
+                  $Roll_set = $Roll_set;
+                }
+                $X[9] = ($Roll_set - $Y[9]) / $T_z;
+                $Y[9] += $X[9] * $dt;
+
+                $DRoll = $Y[3] - $Y[9];
+                $Der = $k_Roll * $DRoll;
+                $Ded = (($k_Wx * $Y[4]) - ($Y[7]/$T_Wx)) + $Der;
                 $Dnd = ($k_Wy * $Y[2]) - ($Y[8]/$T_Wy);
               break;
               }
             }
 
-            //$Des = $k_se * $X_s;
-            //$Dnn = $k_sp * $X_n;
-
             for($t; $t >= $td; $td += $dd){
               array_push($graph_data[$damper], ["time"=>$td, "Wx"=>$Y[4], "Wy"=>$Y[2], "psi"=>$Y[1], "gamma"=>$Y[3], "betta"=>$Y[5]]);
                 echo  "<tr>
-                <td>" . number_format($td, 2, '.', ' ') . "</td>
+                <td>" . number_format($td, 1, '.', ' ') . "</td>
                 <td>" . number_format($De, 4, '.', ' ') . "</td>
                 <td>" . number_format($Dn, 4, '.', ' ') . "</td>
                 <td>" . number_format($Y[4], 4, '.', ' ') . "</td>
@@ -214,6 +246,8 @@
                 <td>" . number_format($Y[3], 4, '.', ' ') . "</td>
                 <td>" . number_format($Y[5], 4, '.', ' ') . "</td>
                 <td>" . number_format($Y[6], 4, '.', ' ') . "</td>
+                <td>" . number_format($X[6], 4, '.', ' ') . "</td>
+                <td>" . number_format($Roll_set, 4, '.', ' ') . "</td>
                 </tr>";
             }
         }
