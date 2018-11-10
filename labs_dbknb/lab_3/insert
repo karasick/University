@@ -19,13 +19,13 @@ INSERT INTO `threads` (`id`,
                        `amount_of_documents`, 
                        `creation_date`, 
                        `last_message_date`) 
-VALUES (NULL, '1', '1', 'Test', 'tast_data', '1', '0', '2018-10-01 11:57:00', '2018-10-01 11:57:00');
+VALUES (NULL, '1', '1', 'Test', 'test_data', '1', '0', '2018-10-01 11:57:00', '2018-10-01 11:57:00');
 INSERT INTO `messages` (`id`, 
                         `uid`, 
                         `tid`, 
                         `response_to`, 
                         `text`) 
-VALUES (NULL, '1', '1', NULL, 'tast_data');
+VALUES (NULL, '1', '1', NULL, 'test_data');
 INSERT INTO `linked_documents` (`id`, 
                                 `tid`, 
                                 `mid`, 

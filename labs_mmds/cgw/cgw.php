@@ -51,7 +51,7 @@
       $m_y_B = -0.1518;
       $m_y_Dn = -0.071;
       $m_y_De = 0;
-      $m_y_vWx = 0.026; # error. it must be equal -0.026 #
+      $m_y_vWx = -0.026;   # error. it must be equal: -0.026 # # #
 
       $m_z0 = 0.2;
       $m_z_vWz = -13;
@@ -65,22 +65,25 @@
       $k_Wy = 2.5; // s
       $T_Wx = 1.6; // s
       $T_Wy = 2.5; // s
-      $k_Roll = 2.0;
+      $k_Roll = 2.0; // 
       # F_De = +- 12 dergees // Aileron
       # F_Dn = +- 10 dergees // Direction wheel
 
       // for task 2.2
       $Z0 = 100; // m
       $k_z = 0.02; // degree / m
+      // $k_z = 0.004; // degree / m // 2.8.2
+      // $k_z = 0.1; // degree / m  // 2.8.2
       $k_Dz = 0.6; // degree / (m / s)
-      $T_z = 0.1; // s - .............
+      // $k_Dz = 0; // degree / (m / s) // 2.8.3
+      $T_z = 1; // s - .............
       # F_Roll = +-20 dergees
       # F_z = +-2000 m
       # F_Dz = +-300 m / s
 
       // for calculations
       $Ga_B = $m_y_B - (($C_z_B * $pr * $S * $l) / (4 * $m)) * $m_y_vWy;
-      $W_x_De = 0;
+      $W_x_De = -0.73;
       $Xx = (($m_x_B * $I_y) / ($m_y_B * $I_x)) * (1 / sqrt(1 - pow(($m_x_vWx / $I_x), 2) * $I_y * $S * pow($l, 2) * ($pr / (4 * $m_y_B))));
       $C_ybal = (2 * $G) / ($S * $pr * pow($V0, 2));
       $A_bal = 57.3 * (($C_ybal - $C_y0) / $C_y_Alpha);
@@ -111,154 +114,192 @@
 
       $graph_data = array_fill(0,3,array());
 
-      $damper = 1;
+      // $mode = "free flight kappa"; // 
+      // $mode = "free flight De"; // 
+      $mode = "regulation"; // 
+      
+      // $method = "eiler"; // 
+      $method = "runge-kutta"; // 
 
-        $t = 0; // s - flight time
-        $td = 0; // s - output time
-        $tf = 110.001; // s - flight ending time
-        $dt = 0.01; // 1 per s - integration step
-        $dd = 0.1; // s - output step
+      // $signal = "zero"; // 
+      $signal = "normal"; // 
 
-        echo "<h3 aling=\"left\"> Dempfer value = $damper.</h3>";
+      $t = 0; // s - flight time
+      $td = 0; // s - output time
+      $tf = 90.1; // s - flight ending time
+      $dt = 0.01; // 1 per s - integration step
+      $dd = 0.1; // s - output step
 
-        $X = array_fill(1, 10, 0);
-        $Y = array_fill(1, 10, 0);
+      echo "<h3 aling=\"left\"> Mode value = <u>$mode</u>. Method value = <u>$method</u>. Signal value = <u>$signal</u>. Integration step value = <u>$dt</u> </h3>";
 
-        $Y[6] = $Z0;
-        $De = 0;
-        $Dn = 0;
-        $Ded = 0;
-        $Dnd = 0;
+      $X = array_fill(1, 10, 0);
+      $Y = array_fill(1, 10, 0);
 
-        echo
-        "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
-        <tr>
-          <th>T</th>
-          <th>De</th>
-          <th>Dn</th>
-          <th>Wx</th>
-          <th>Wy</th>
-          <th>PSI</th>
-          <th>GAMMA</th>
-          <th>BETTA</th>
-          <th>Z</th>
-          <th>DZ</th>
-          <th>Roll_set</th>
-        </tr>";
+      $Y[6] = $Z0;
+      $De = 0;
+      $Dn = 0;
+      $Ded = 0;
+      $Dnd = 0;
 
-        for($t; $t <= $tf; $t += $dt){
-
-          /*
-          if($td < 0.5) {
-            $Dnn = 0;
-          } elseif($td < 1.5) {
-            $Dnn = 10;
-          } else $Dnn = 0;
-
-          $Des = 0;
-          $De = $Des + $Ded;
-          $Dn = $Dnn + $Dnd;
-          */
-
-          if($Dnd < -10) {
-            $Dnd = -10;
-          } elseif($Dnd > 10) {
-            $Dnn = 10;
-          } 
-
-          if($Ded < -12) {
-            $Ded = -12;
-          } elseif($Ded > 12) {
-            $Ded = 12;
-          }
-
-          $De = $Ded;
-          $Dn = $Dnd;
-
-            $X[1] = $Y[2];
-            $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Y[5] - $a[3] * $Dn - $b[5] * $De;
-            $X[3] = $Y[4];
-            $X[4] =  -$b[1] * $Y[4] - $a[6] * $Y[2] - $b[2] * $Y[5] - $a[5] * $Dn - $b[3] * $De;
-            $X[5] = $Y[2] + $b[4] * $Y[3] + $b[7] * $Y[4] - $a[4] * $Y[5] - $a[7] * $Dn;
-            $X[6] = -$c[6] * ($Y[1] - $Y[5]);
-
-            for($i = 1; $i <= 6; $i++){
-                $Y[$i] += $X[$i] * $dt;
-            }
-
-            $mode = $damper;
-            switch($mode){
-              case 0: {
-                $Ded = 0;
-                $Dnd = 0;
-              break;
-              }
-              case 1: {
-                $X[7] = $Ded;
-                $X[8] = $Dnd;
-                $Y[7] += $X[7] * $dt;
-                $Y[8] += $X[8] * $dt;
-
-                if($Y[6] < -2000) {
-                  $Z = -2000;
-                } elseif($Y[6] > 2000) {
-                  $Z = 2000;
-                } else {
-                  $Z = $Y[6];
-                }
-
-                if($X[6] < -300) {
-                  $DZ = -300;
-                } elseif($X[6] > 300) {
-                  $DZ = 300;
-                } else {
-                  $DZ = $X[6];
-                }
-
-                $Roll_set = $k_z * $Z + $k_Dz * $DZ;
-                if($Roll_set < -300) {
-                  $Roll_set = -300;
-                } elseif($Roll_set > 300) {
-                  $Roll_set = 300;
-                } else {
-                  $Roll_set = $Roll_set;
-                }
-                $X[9] = ($Roll_set - $Y[9]) / $T_z;
-                $Y[9] += $X[9] * $dt;
-
-                $DRoll = $Y[3] - $Y[9];
-                $Der = $k_Roll * $DRoll;
-                $Ded = (($k_Wx * $Y[4]) - ($Y[7]/$T_Wx)) + $Der;
-                $Dnd = ($k_Wy * $Y[2]) - ($Y[8]/$T_Wy);
-              break;
-              }
-            }
-
-            for($t; $t >= $td; $td += $dd){
-              array_push($graph_data[$damper], ["time"=>$td, "Wx"=>$Y[4], "Wy"=>$Y[2], "psi"=>$Y[1], "gamma"=>$Y[3], "betta"=>$Y[5]]);
-                echo  "<tr>
-                <td>" . number_format($td, 1, '.', ' ') . "</td>
-                <td>" . number_format($De, 4, '.', ' ') . "</td>
-                <td>" . number_format($Dn, 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[4], 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[2], 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[1], 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[3], 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[5], 4, '.', ' ') . "</td>
-                <td>" . number_format($Y[6], 4, '.', ' ') . "</td>
-                <td>" . number_format($X[6], 4, '.', ' ') . "</td>
-                <td>" . number_format($Roll_set, 4, '.', ' ') . "</td>
-                </tr>";
-            }
-        }
-        echo "</table><br/>";
-
-        $graph_data_file = 'data' . 0 . '.json';
-        $handle = fopen($graph_data_file, 'w') or die ('Cannot open file: ' . $graph_data_file);
-        $graph_content = json_encode($graph_data[$damper]);
-        fwrite($handle, $graph_content);
       echo
       "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
+      <tr>
+        <th>T</th>
+        <th>De</th>
+        <th>Dn</th>
+        <th>Wx</th>
+        <th>Wy</th>
+        <th>PSI</th>
+        <th>GAMMA</th>
+        <th>BETTA</th>
+        <th>Z</th>
+        <th>DZ</th>
+        <th>Roll_set</th>
+      </tr>";
+
+      for($t; $t <= $tf; $t += $dt){
+
+        $De = $Y[7];
+        $Dn = $Y[8];
+
+        switch($mode) {
+          case "free flight kappa" : { // 2.5
+            if($td < 1) {
+              $Dn = 0;
+            } elseif($td < 2) {
+              $Dn = 10;
+            } else $Dn = 0;
+            $De = 0;
+          break;
+          }
+          case "free flight De" : { // 2.5
+            $Dn = 0;
+            $De = -1;
+          break;
+          }
+        }
+
+        $X[1] = $Y[2];
+        $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Y[5] - $a[3] * $Dn - $b[5] * $De;
+        $X[3] = $Y[4];
+        $X[4] = -$b[1] * $Y[4] - $a[6] * $Y[2] - $b[2] * $Y[5] - $a[5] * $Dn - $b[3] * $De;
+        $X[5] = $Y[2] + $b[4] * $Y[3] + $b[7] * $Y[4] - $a[4] * $Y[5] - $a[7] * $Dn;
+        $X[6] = -$c[6] * ($Y[1] - $Y[5]);
+
+        if($Y[6] < -2000) {
+          $Y[6] = -2000;
+        } elseif($Y[6] > 2000) {
+          $Y[6] = 2000;
+        }
+        if($X[6] < -300) {
+          $X[6] = -300;
+        } elseif($X[6] > 300) {
+          $X[6] = 300;
+        }
+        $Roll_c = $k_z * $Y[6] + $k_Dz * $X[6];
+        if($Roll_c < -300) {
+          $Roll_c = -300;
+        } elseif($Roll_c > 300) {
+          $Roll_c = 300;
+        }
+        $X[9] = $Roll_c - ($Y[9] / $T_z); // Roll_set == $Y[9]   # error. it must be: $X[9] = $Roll_c - ($Y[9] / $T_z) # # #
+        $DRoll = $Y[3] - $Y[9];
+        $Der = $k_Roll * $DRoll;
+        $X[7] = ($k_Wx * $X[4]) + (($Der - $Y[7]) / $T_Wx);
+        switch($mode) {
+          case "free flight" : { // 2.5
+            $X[8] = 0;
+          break;
+          }
+          case "regulation" : {
+            $X[8] = ($k_Wy * $X[2]) - ($Y[8] / $T_Wy);
+          break;
+          }
+        }
+
+        switch($method) {
+          case "eiler" : {
+            for($i = 1; $i <= 9; $i++){
+              $Y[$i] += $X[$i] * $dt;
+            }
+            break;
+          }
+          case "runge-kutta" : {
+            for($i = 1; $i <= 9; $i++){
+              $K1[$i] = $X[$i];
+              $X_K2[$i] = $X[$i] + $dt;
+              $Y_K2[$i] = $Y[$i] + $dt * $K1[$i];
+            }
+            $X_K2[1] = $Y_K2[2];
+            $X_K2[2] = -$a[1] * $Y_K2[2] - $b[6] * $Y_K2[4] - $a[2] * $Y_K2[5] - $a[3] * $Dn - $b[5] * $De;
+            $X_K2[3] = $Y_K2[4];
+            $X_K2[4] = -$b[1] * $Y_K2[4] - $a[6] * $Y_K2[2] - $b[2] * $Y_K2[5] - $a[5] * $Dn - $b[3] * $De;
+            $X_K2[5] = $Y_K2[2] + $b[4] * $Y_K2[3] + $b[7] * $Y_K2[4] - $a[4] * $Y_K2[5] - $a[7] * $Dn;
+            $X_K2[6] = -$c[6] * ($Y_K2[1] - $Y_K2[5]);
+
+            if($Y_K2[6] < -2000) {
+              $Y_K2[6] = -2000;
+            } elseif($Y_K2[6] > 2000) {
+              $Y_K2[6] = 2000;
+            }
+            if($X_K2[6] < -300) {
+              $X_K2[6] = -300;
+            } elseif($X_K2[6] > 300) {
+              $X_K2[6] = 300;
+            }
+            $Roll_c = $k_z * $Y_K2[6] + $k_Dz * $X_K2[6];
+            if($Roll_c < -300) {
+              $Roll_c = -300;
+            } elseif($Roll_c > 300) {
+              $Roll_c = 300;
+            }
+            $X_K2[9] = $Roll_c - ($Y_K2[9] / $T_z); // Roll_set == $Y[9]   # error. it must be: $X[9] = $Roll_c - ($Y[9] / $T_z) # # #
+            $DRoll = $Y_K2[3] - $Y_K2[9];
+            $Der = $k_Roll * $DRoll;
+            $X_K2[7] = ($k_Wx * $X_K2[4]) + (($Der - $Y_K2[7]) / $T_Wx);
+            switch($mode){
+              case "free flight": {
+                $X_K2[8] = 0;
+              break;
+              }
+              case "regulation": {
+                $X_K2[8] = ($k_Wy * $X_K2[2]) - ($Y_K2[8] / $T_Wy);
+              break;
+              }
+            }
+            for($i = 1; $i <= 9; $i++){
+              $K2[$i] = $X_K2[$i];
+              $Y[$i] += ($dt / 2) * ($K1[$i] + $K2[$i]);
+            }
+            break;
+          }
+        }
+        for($t; $t >= $td; $td += $dd){
+          array_push($graph_data[0], ["time"=>$td, "Wx"=>$Y[4], "Wy"=>$Y[2], "psi"=>$Y[1], "gamma"=>$Y[3], "betta"=>$Y[5], "Z" => $Y[6]]);
+            echo  "<tr>
+            <td>" . number_format($td, 1, '.', ' ') . "</td>
+            <td>" . number_format($De, 4, '.', ' ') . "</td>
+            <td>" . number_format($Dn, 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[4], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[2], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[1], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[3], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[5], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[6], 4, '.', ' ') . "</td>
+            <td>" . number_format($X[6], 4, '.', ' ') . "</td>
+            <td>" . number_format($Y[9], 4, '.', ' ') . "</td>
+            </tr>";
+        }
+      }
+      echo "</table><br/>";
+
+      $graph_data_file = 'data' . 0 . '.json';
+      $handle = fopen($graph_data_file, 'w') or die ('Cannot open file: ' . $graph_data_file);
+      $graph_content = json_encode($graph_data[0]);
+      fwrite($handle, $graph_content);
+
+      echo
+      "<table width=\"75%\" cellspacing=\"0\" border=\"1\">
        <tr>
         <th rowspan=\"2\" width=\"15%\">Damper control acts</th>
         <th colspan=\"1\">t_pp</th>
@@ -277,7 +318,7 @@
         <th colspan=\"1\">real obj</th>
        </tr>
        <tr>
-        <td>1</td><td>45.5</td><td>8</td><td>7-8</td><td>$Xx</td><td></td><td>1.0</td><td>0.023</td><td>0.7163</td>
+        <td>default</td><td>15</td><td>7</td><td>7-8</td><td>" . number_format($Xx, 2, '.', ' ') . "</td><td></td><td>1.0</td><td>$W_x_De</td><td>-0.7163</td>
        </tr>
       </table><br/>";
       $Vi = $V0 * 3.6 * sqrt(($pr)/(0.1249)); // Vhf
@@ -305,12 +346,14 @@
       </div>
       <div id = "chart_div_BETTA" style = "width: 1400px; height: 700px">
       </div>
+      <div id = "chart_div_Z" style = "width: 1400px; height: 700px">
+      </div>
       <script language = "JavaScript">
 
         function chart_div_Wx() {
           var data = new google.visualization.DataTable();
           data.addColumn('number', 'flight time');
-          data.addColumn('number', '1 damper');
+          data.addColumn('number', 'default damper');
           data.addRows([
             <?php
               $data_0 = file_get_contents("./data0.json");
@@ -338,7 +381,7 @@
         function chart_div_Wy() {
           var data = new google.visualization.DataTable();
           data.addColumn('number', 'flight time');
-          data.addColumn('number', '1 damper');
+          data.addColumn('number', 'default damper');
           data.addRows([
             <?php
               $data_0 = file_get_contents("./data0.json");
@@ -366,7 +409,7 @@
         function chart_div_PSI() {
           var data = new google.visualization.DataTable();
           data.addColumn('number', 'flight time');
-          data.addColumn('number', '1 damper');
+          data.addColumn('number', 'default damper');
           data.addRows([
             <?php
               $data_0 = file_get_contents("./data0.json");
@@ -394,7 +437,7 @@
         function chart_div_GAMMA() {
           var data = new google.visualization.DataTable();
           data.addColumn('number', 'flight time');
-          data.addColumn('number', '1 damper');
+          data.addColumn('number', 'default damper');
           data.addRows([
             <?php
               $data_0 = file_get_contents("./data0.json");
@@ -422,7 +465,7 @@
         function chart_div_BETTA() {
           var data = new google.visualization.DataTable();
           data.addColumn('number', 'flight time');
-          data.addColumn('number', '1 damper');
+          data.addColumn('number', 'default damper');
           data.addRows([
             <?php
               $data_0 = file_get_contents("./data0.json");
@@ -446,6 +489,34 @@
           chart.draw(data, options);
         }
         google.charts.setOnLoadCallback(chart_div_BETTA);
+
+        function chart_div_Z() {
+          var data = new google.visualization.DataTable();
+          data.addColumn('number', 'flight time');
+          data.addColumn('number', 'default damper');
+          data.addRows([
+            <?php
+              $data_0 = file_get_contents("./data0.json");
+              $json_data_0 = json_decode($data_0, true);
+              for ($i = 0; $i <= (count($json_data_0)-1); $i++) {
+                echo "["
+                . $json_data_0[$i]['time'] . ",  "
+                . $json_data_0[$i]['Z']
+                . "],";
+              }
+            ?>
+          ]);
+          var options = {
+            'title' : 'Z',
+            'width': 1400,
+            'height': 700,
+            curveType: 'function',
+            colors: ['blue']
+          };
+          var chart = new google.visualization.LineChart(document.getElementById('chart_div_Z'));
+          chart.draw(data, options);
+        }
+        google.charts.setOnLoadCallback(chart_div_Z);
 
       </script>
    </body>
