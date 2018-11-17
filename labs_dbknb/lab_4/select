@@ -1,0 +1,34 @@
+SELECT `headline`, `description` 
+    FROM `boards` 
+    WHERE `description` NOT LIKE 'A%' && 
+    `description` NOT LIKE 'B%' && 
+    `description` NOT LIKE 'C%' && 
+    `description` NOT LIKE 'D%' && 
+    `description` NOT LIKE 'E%' 
+    ORDER BY `boards`.`description` ASC;
+
+SELECT `headline`, `description`, `amount_of_threads` 
+    FROM `boards` 
+    WHERE `amount_of_threads` >= 1 
+    ORDER BY `boards`.`amount_of_threads` DESC;
+
+SELECT MAX(`topic`), MAX(`amount_of_messages`), MAX(`creation_date`) 
+    FROM `threads` 
+    WHERE `creation_date` BETWEEN '2018-10-01 00:00:00' AND '2018-11-09 23:59:59' 
+    ORDER BY `threads`.`amount_of_messages` ASC;
+
+SELECT * 
+    FROM `boards` 
+    WHERE `amount_of_threads` >= (SELECT AVG(`amount_of_threads`) FROM `boards`) 
+    ORDER BY `boards`.`description` ASC;
+
+SELECT `uid` AS `user_id`, COUNT(*) AS `number_of_messages` 
+    FROM `messages` 
+    GROUP BY `uid` 
+    HAVING COUNT(*) >= 2 
+    ORDER BY `messages`.`uid` ASC;
+
+SELECT `bid`, `amount_of_messages` 
+    FROM `threads` 
+    WHERE `amount_of_messages` >= 2 * (SELECT MIN(`amount_of_messages`) FROM `threads`) 
+    ORDER BY `threads`.`bid` ASC;

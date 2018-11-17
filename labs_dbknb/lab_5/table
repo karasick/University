@@ -1,0 +1,16 @@
+CREATE TABLE `university`.`bonus` ( 
+    `id` INT(9) NOT NULL AUTO_INCREMENT, 
+    `uid` INT(9) NOT NULL, 
+    `creation_date` DATETIME NOT NULL, 
+    `topic` VARCHAR(255) NOT NULL, 
+    PRIMARY KEY (`id`), 
+    FOREIGN KEY (`uid`) REFERENCES threads(`uid`), 
+    FOREIGN KEY (`creation_date`) REFERENCES threads(`creation_date`), 
+    FOREIGN KEY (`topic`) REFERENCES threads(`topic`)
+    ) 
+ENGINE = InnoDB;
+
+CREATE VIEW best_customers AS 
+    SELECT `uid`, `creation_date`, `topic`
+    FROM  `university`.`threads`
+    WHERE `amount_of_messages` = (SELECT MAX(`amount_of_messages`) FROM `university`.`threads`);

@@ -1,0 +1,11 @@
+DELETE 
+    FROM `threads`
+    WHERE `topic` LIKE 'S%';
+
+DELETE 
+    FROM `users`
+    WHERE `id` = (SELECT `uid` 
+        FROM `threads`
+        WHERE `amount_of_messages` = (SELECT MAX(`amount_of_messages`) 
+            FROM `threads`));
+

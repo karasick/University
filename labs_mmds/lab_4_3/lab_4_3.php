@@ -11,17 +11,17 @@ ini_set('error_reporting', E_ALL);
   $G_f0 = 20000; // kg - fuel weight
   $q_eng = 0.585; // kg per s - fuel consumption for one engine
   $I_x = 250000; // kg * m * s^2 - cross moment of inertia
-  $I_y = 875000; // kg * m * s^2 - roadway moment of inertia
+  $I_y = 900000; // kg * m * s^2 - roadway moment of inertia
   $I_z = 660000; // kg * m * s^2 - lengthwise moment of inertia
 
   // hs flight mode
-  $V0 = 236; // m per s - speed // Vhf - speed of  horizontal flight
-  $H0 = 11050; // m - height
-  $pr = 0.0372; // (kg * s^2) per m^2 - pressure
+  $V0 = 78; // m per s - speed // Vhf - speed of  horizontal flight
+  $H0 = 500; // m - height
+  $pr = 0.119; // (kg * s^2) per m^2 - pressure
   $An = 338.36; // m per s - sound velocity
-  $Alpha_bal = 6.04; // deg
+  $Alpha_bal = 7.1; // deg
   $Tetta0 = 0; // deg
-  $g = 9.73; // m per s^2 - gravitational acceleration
+  $g = 9.81; // m per s^2 - gravitational acceleration
   $m = $G0 / $g; // N - Weight
 
   $P_1_Dg = 7003;
@@ -37,17 +37,17 @@ ini_set('error_reporting', E_ALL);
   $C_y_M = 0;
   $C_yhf = 0.6446;
 
-  $C_z_B = -0.8595;
-  $C_z_Dn = -0.1759;
+  $C_z_B = -1.0715;
+  $C_z_Dn = -0.183;
 
-  $m_x_Dn = -0.01719;
-  $m_x_vWy = -0.11;
-  $m_x_vWx = -0.66;
-  $m_x_B = -0.1146;
-  $m_x_De = -0.043;
+  $m_x_Dn = -0.0206;
+  $m_x_vWy = -0.31;
+  $m_x_vWx = -0.583;
+  $m_x_B = -0.186;
+  $m_x_De = -0.0688;
 
-  $m_y_vWy = -0.145;
-  $m_y_B = -0.1719;
+  $m_y_vWy = -0.21;
+  $m_y_B = -0.2;
   $m_y_Dn = -0.0716;
   $m_y_De = 0;
   $m_y_vWx = -0.006;
@@ -59,23 +59,34 @@ ini_set('error_reporting', E_ALL);
   $m_z_Dv = -0.96;
   $m_z_M = 0;
 
-  // automatic control rule
+  // automatic landing approach
+  $Psi_RWY = 0;
   $k_Gamma = 2.0;
   $k_Wx = 1.5;
   $k_Wy = 2.5;
-
-  // aircraft positioning methods
-  $k_Gamma_set = 0.7; // (deg * s) per m
-  /// flight by course
-  ### F_Gamma = +- 20 dergees
-  /// flight by path
-  ### F_Gamma = +- 20 dergees
-  /// flight by way
-  $k_Z = 0.02; // deg per m
-  $k_pZ = 0.7; // (deg * s) per m
-  ### F_Gamma = +- 20 dergees
-
-  $SHK = 0;
+  $k_Wy_pre = 2.5;
+  $k[3] = 1.3;
+  $k[5] = 2.0; // before glide path
+  ## $k[5] = 2.0; // after glide path
+  $k[6] = 1.3;
+  $k[10] = 8.0;
+  $k[15] = 1.0;
+  $k[17] = 170.0; // before glide path
+  ## $k[17] = 120.0; // after glide path
+  $T_Wx = 1.6;
+  $T_Wy = 2.5;
+  $T[5] = 2.3;
+  $T[15] = 0.85;
+  $T[17] = 2.3;
+  ## F_De = +- 12 dergees
+  ## F_Dn = +- 10 dergees
+  ## F[1] = +- 25 dergees
+  ## F[2] = +- 20 dergees
+  $L_RWY = 3000; // m
+  $S_LOCn = 167; // µA per dergee
+  $DI_LOC = 0;
+  $T_LOC = 0.2;
+  $Psi_g0 = 90;
 
   // for calculations
   $Ga_B = $m_y_B - (($C_z_B * $pr * $S * $l) / (4 * $m)) * $m_y_vWy;
@@ -118,7 +129,7 @@ ini_set('error_reporting', E_ALL);
   //                                  //
   // $positioning_method = "course";  //
   // $positioning_method = "path";    //
-  $positioning_method = "way";     //
+  // $positioning_method = "way";     //
   //                                  //
   $integration_method = "eiler";   //
   //                                  //
@@ -128,59 +139,74 @@ ini_set('error_reporting', E_ALL);
 
   $graph_data = array_fill(1,5,array());
 
-  for($flight_case = 1; $flight_case <= 5; $flight_case++) {
+  for($flight_case = 1; $flight_case <= 1; $flight_case++) {
 
     $t = 0; // s - flight time
     $td = 0; // s - output time
-    $tf = 260.1; // s - flight ending time
+    $tf = 300.1; // s - flight ending time
     $dt = 0.01; // 1 per s - integration step
-    $dd = 1; // s - output step
+    $dd = 5; // s - output step
 
-    $X = array_fill(1, 10, 0);
-    $Y = array_fill(1, 10, 0);
-    //$Y[1] = -1 * $P_p0;
-    $X[6] = 1;
-    $Y[6] = -50000;
-    $Y[8] = $G_f0;
+    $X = array_fill(1, 13, 0);
+    $Y = array_fill(1, 13, 0);
+    $F = array_fill(1, 2, 0);
+    // $X[6] = 1;
+    $Y[6] = -18000; // m
+    // $Y[8] = $G_f0;
 
     switch($flight_case) {
       case 1 : {
-        $Y[7] = 0;
-        $W = 0;
-        $NV = 0;
+        $Y[1] = $Psi_g0;
+        $Y[7] = -5000;
+        $S_LOC = $S_LOCn;
       break;
       }
       case 2 : {
-        $Y[7] = 2000;
-        $W = 0;
-        $NV = 0;
+        $Y[1] = $Psi_g0;
+        $Y[7] = -3000;
+        $S_LOC = $S_LOCn;
       break;
       }
       case 3 : {
-        $Y[7] = 0;
-        $W = 40;
-        $NV = 0;
+        $Y[1] = $Psi_g0;
+        $Y[7] = -2000;
+        $S_LOC = $S_LOCn;
       break;
       }
       case 4 : {
-        $Y[7] = 0;
-        $W = 40;
-        $NV = 180;
+        $Y[1] = $Psi_g0;
+        $Y[7] = -3000;
+        $S_LOC = 54;
       break;
       }
       case 5 : {
-        $Y[7] = 0;
-        $W = 40;
-        $NV = 135;
+        $Y[1] = $Psi_g0;
+        $Y[7] = -3000;
+        $S_LOC = $S_LOCn;
+      break;
+      }
+      case 6 : {
+        $Y[1] = $Psi_g0;
+        $Y[7] = -3000;
+        $S_LOC = 280;
+      break;
+      }
+      case 7 : {
+        $Y[1] = 0;
+        $Y[7] = 300;
+        $S_LOC = $S_LOCn;
+      break;
+      }
+      case 8 : {
+        $Y[1] = $Psi_g0;
+        $Y[7] = 2000;
+        $S_LOC = $S_LOCn;
       break;
       }
     }
 
-    $Betta_v = 0;
-    $Betta_w = 0;
-    $V_sh = 0;
-    $W_x = 0;
-    $W_z = 0;
+    $W = 0;
+    $NV = 0;
     $Dn = 0;
     $De = 0;
 
@@ -188,8 +214,8 @@ ini_set('error_reporting', E_ALL);
       <div class=\"section\">"
       . "<h5 aling=\"left\">" .
       "Mode value = <u>$mode</u>. " .
-      "Positioning method = <u>$positioning_method</u>.</br>" .
-      "Integration method value = <u>$integration_method</u>. " .
+      //"Positioning method = <u>$positioning_method</u>.</br>" .
+      "Integration method value = <u>$integration_method</u></br>" .
       "Integration step value = <u>$dt</u></br>" .
       "Z0 value = <u>" . $Y[7] . "</u>. W value = <u>$W</u>. NV value = <u>$NV</u>" .
       "</h3>" .
@@ -213,85 +239,71 @@ ini_set('error_reporting', E_ALL);
 
     for($t; $t <= $tf; $t += $dt) {
 
+      $X[1] = $Y[2]; // pPsi
+      $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Y[5] - $a[3] * $Dn - $b[5] * $De; // pWy
+      $X[3] = $Y[4]; // pGamma
+      $X[4] = -$b[1] * $Y[4] - $a[6] * $Y[2] - $b[2] * $Y[5] - $a[5] * $Dn - $b[3] * $De; // pWx
+      $X[5] = $Y[2] + $b[4] * $Y[3] + $b[7] * $Y[4] - $a[4] * $Y[5] - $a[7] * $Dn; // pBetta
       $Psi_g = -1 * $Y[1];
-
       $W_x = $W * cos(deg2rad($NV - $Psi_g));
       $W_z = $W * sin(deg2rad($NV - $Psi_g));
-
-      $Betta_w = -1 * rad2deg($W_z) / $V0;
-      $Betta_v = $Y[5] + $Betta_w;
-      
       $V_sh = $V0 + $W_x;
-      
-      $P_p = rad2deg(atan($Y[7] / $Y[6]));
-      
-      $X[6] = $V_sh * cos(deg2rad($Psi_g + $Y[5])); // pX
+      $X[6] = $V_sh * cos(deg2rad($Psi_g + $Y[5])); // pD_RWY
       $X[7] = $V_sh * sin(deg2rad($Psi_g + $Y[5])); // pZ
+      $DPsi = $Psi_g - $Psi_RWY; // pDPsi
+
+      // $X[] = -3 * $q_eng; // pG_f
+      // $P_p = rad2deg(atan($Y[7] / $Y[6]));
 
       switch($mode) {
         case "regulation" : {
-          switch($positioning_method) {
-            case "course" : {
-              $KKp = $P_p - $Psi_g;
-              $Gamma_set = $k_Gamma_set * $V_sh * sin(deg2rad($KKp));
-              if($Gamma_set > 20) {
-                $Gamma_set = 20;
-              } elseif($Gamma_set < -20) {
-                $Gamma_set = -20;
-              }
-            break;
-            }
-            case "path" : {
-              $SHK = rad2deg(atan(($X[7] / $X[6])));
-              $DSHK = $P_p - $SHK;
-              $Gamma_set = $k_Gamma_set * $V_sh * sin(deg2rad($DSHK));
-              if($Gamma_set > 20) {
-                $Gamma_set = 20;
-              } elseif($Gamma_set < -20) {
-                $Gamma_set = -20;
-              }
-            break;
-            }
-            case "way" : {
-              $Gamma_set = -1 * ($k_Z * $Y[7] + $k_pZ * $X[7]);
-              if($Gamma_set > 20) {
-                $Gamma_set = 20;
-              } elseif($Gamma_set < -20) {
-                $Gamma_set = -20;
-              }
-            break;
-            }
+          $Epsilon_k_pre = rad2deg(atan($Y[7] / ($Y[6] + $L_RWY + 1000)));
+          $I_LOC_pre = $S_LOC * $Epsilon_k_pre + $DI_LOC;
+          if($I_LOC_pre > 250) {
+            $I_LOC_pre = 250;
+          } elseif($I_LOC_pre < -250) {
+            $I_LOC_pre = -250;
+          }
+          $X[8] = ($I_LOC_pre - $Y[8]) / $T_LOC; // pI_LOC
+          $Epsilon_k = $Y[8] / $S_LOCn; // $Epsilon_k
+
+          $X[9] = ($k[5] * $DPsi - $Y[9]) / $T[5]; // !!! must be pDPsi !!!
+          $X[10] = ($k[17] * $Epsilon_k - $Y[10]) / $T[17]; // !!! must be pEpsilon_k !!!
+          $F[1] = -1 * $k[3] * $DPsi + $k[10] * $Epsilon_k; //
+          if($F[1] > 25) {
+            $F[1] = 25;
+          } elseif($F[1] < -25) {
+            $F[1] = -25;
+          }
+          $F[2] = ($k[6] * $DPsi + $Y[9] + $Y[10] + $F[1]); //
+          if($F[2] > 20) {
+            $F[2] = 20;
+          } elseif($F[2] < -20) {
+            $F[2] = -20;
+          }
+          $X[11] = (-1 * $k[15] * $F[2] - $Y[11]) / $T[15]; // Gamma_set
+
+          $X[12] = $k_Wx * $X[4] - ($Y[12] / $T_Wx); //
+          $De = $k_Gamma * ($Y[3] - $Y[11]) + $Y[12]; // De
+          if($De > 12) {
+            $De = 12;
+          } elseif($De < -12) {
+            $De = -12;
+          }
+          
+          $X[13] = $k_Wy * $X[2] - ($Y[13] / $T_Wy); //
+          $Dn = $Y[13] + $k_Wy_pre * $Y[2]; // Dn
+          if($Dn > 10) {
+            $Dn = 10;
+          } elseif($Dn < -10) {
+            $Dn = -10;
           }
         break;
         }
       }
-      
-      $De = $k_Gamma * ($Y[3] - $Gamma_set) + $k_Wx * $Y[4];
-      $Dn = $k_Wy * $Y[2];
-
-      $X[1] = $Y[2]; // pPsi
-      $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Betta_v - $a[3] * $Dn - $b[5] * $De; // pWy
-      $X[3] = $Y[4]; // pGamma
-      $X[4] = -$b[1] * $Y[4] - $a[6] * $Y[2] - $b[2] * $Betta_v - $a[5] * $Dn - $b[3] * $De; // pWx
-      $X[5] = $Y[2] + $b[4] * $Y[3] + $b[7] * $Y[4] - $a[4] * $Betta_v - $a[7] * $Dn; // pBetta
-      $X[8] = -3 * $q_eng; // pG_f
-
-      switch($integration_method) {
-        case "eiler" : {
-          for($i = 1; $i <= 8; $i++){
-            $Y[$i] += $X[$i] * $dt;
-          }
-        break;
-        }
-      }
-
       
       for($t; $t >= $td; $td += $dd){
-        /*if($Y[7] < 0.001) {
-          array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Psi_g, "X" => $Y[6], "Z" => 0, "G_f" => $Y[8]]);
-        } else {
-          array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Psi_g, "X" => $Y[6], "Z" => $Y[7], "G_f" => $Y[8]]);
-        }*/
+        array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Psi_g, "X" => $Y[6], "Z" => $Y[7], "G_f" => $Y[8]]);
         echo  "<tr>
         <td>" . number_format($td, 1, '.', ' ') . "</td>
         <td>" . number_format($De, 4, '.', ' ') . "</td>
@@ -302,19 +314,29 @@ ini_set('error_reporting', E_ALL);
         <td>" . number_format($Y[7], 4, '.', ' ') . "</td>
         <td>" . number_format($Y[8], 4, '.', ' ') . "</td>
         </tr>";
-        if($Y[6] >= -10) {
+        if($Y[6] >= 0) {
           break 2;
+        }
+      }
+
+      switch($integration_method) {
+        case "eiler" : {
+          for($i = 1; $i <= 13; $i++){
+            $Y[$i] += $X[$i] * $dt;
+          }
+        break;
         }
       }
     }
     echo "</table><br/>";
     echo  "</div>
     </div>";
+    
 
     $graph_data_file = 'data' . $flight_case . '.json';
     $handle = fopen($graph_data_file, 'w') or die ('Cannot open file: ' . $graph_data_file);
     $graph_content = json_encode($graph_data[$flight_case]);
-    fwrite($handle, $graph_content); 
+    fwrite($handle, $graph_content);
   }
   $Vi = $V0 * 3.6 * sqrt(($pr)/(0.1249)); // Vhf
   $M = $Vi / $An;
@@ -334,10 +356,12 @@ ini_set('error_reporting', E_ALL);
           <div id = "chart_div_Z" style = "width: 100%; height: 100%"></div>
           -->
           <div id = "chart_div_fc1" style = "width: 100%; height: 100%"></div>
+          <!--
           <div id = "chart_div_fc2" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc3" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc4" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc5" style = "width: 100%; height: 100%"></div>
+          -->
       </div>
     </div>
   </div>
@@ -526,7 +550,7 @@ ini_set('error_reporting', E_ALL);
       chart.draw(data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc1);
-
+    /*
     function chart_div_fc2() {
       var data = new google.visualization.DataTable();
       data.addColumn('number', 'flight time');
@@ -653,7 +677,7 @@ ini_set('error_reporting', E_ALL);
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc5'));
       chart.draw(data, chart_options);
     }
-    google.charts.setOnLoadCallback(chart_div_fc5);
+    google.charts.setOnLoadCallback(chart_div_fc5);*/
   </script>
 </body>
 </html>
