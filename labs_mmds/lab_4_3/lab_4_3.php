@@ -208,8 +208,8 @@ ini_set('error_reporting', E_ALL);
       break;
       }
       case 8 : {
-        $Y[6] = $Psi_g0;
-        $Y[9] = $Psi_g0;
+        $Y[6] = -$Psi_g0;
+        $Y[9] = -$Psi_g0;
         $Y[8] = 2000;
         $S_LOC = $S_LOCn;
       break;
@@ -228,7 +228,7 @@ ini_set('error_reporting', E_ALL);
       //"Positioning method = <u>$positioning_method</u>.</br>" .
       "Integration method value = <u>" . $integration_method . "</u></br>" .
       "Integration step value = <u>" . $dt . "</u></br>" .
-      "Z0 value = <u>" . $Y[8] . "</u>. Psi_g0 value = <u>" . $Y[1] . "</u>. NV value = <u>" . $S_LOC . "</u>" .
+      "Z0 value = <u>" . $Y[8] . "</u>. Psi_g0 value = <u>" . $Y[6] . "</u>. NV value = <u>" . $S_LOC . "</u>" .
       "</h3>" .
       "</div>
     </div>";
@@ -344,9 +344,9 @@ ini_set('error_reporting', E_ALL);
         <td>" . number_format($Y[14], 4, '.', ' ') . "</td>
         <td>" . number_format($Y[17], 0, '.', ' ') . "</td>
         </tr>";
-        // if($Y[7] >= 0 && $Y[8] >= 0) {
-        //   break 2;
-        // }
+        if($Y[7] >= 18300) {
+          break 2;
+        }
       }
 
       switch($integration_method) {
