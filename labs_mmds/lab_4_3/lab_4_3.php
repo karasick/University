@@ -60,6 +60,8 @@ ini_set('error_reporting', E_ALL);
   $m_z_M = 0;
 
   // automatic landing approach
+  $k = array();
+  $T = array();
   $Psi_RWY = 0;
   $k_Gamma = 2.0;
   $k_Wx = 1.5;
@@ -67,7 +69,7 @@ ini_set('error_reporting', E_ALL);
   $k_Wy_pre = 2.5;
   $k[3] = 1.3;
   $k[5] = 2.0; // before glide path
-  ## $k[5] = 2.0; // after glide path
+  ## $k[5] = 3.0; // after glide path
   $k[6] = 1.3;
   $k[10] = 8.0;
   $k[15] = 1.0;
@@ -89,6 +91,7 @@ ini_set('error_reporting', E_ALL);
   $Psi_g0 = 90;
 
   // for calculations
+  $DGp = rad2deg($H0) / 2.67 - 300; // Gp - glide path
   $Ga_B = $m_y_B - (($C_z_B * $pr * $S * $l) / (4 * $m)) * $m_y_vWy;
   $W_x_De = -0.73;
   $Xx = (($m_x_B * $I_y) / ($m_y_B * $I_x)) * (1 / sqrt(1 - pow(($m_x_vWx / $I_x), 2) * $I_y * $S * pow($l, 2) * ($pr / (4 * $m_y_B))));
@@ -137,69 +140,77 @@ ini_set('error_reporting', E_ALL);
   $signal = "normal";              //
   //////////////////////////////////////
 
-  $graph_data = array_fill(1,5,array());
+  $graph_data = array_fill(1,8,array());
 
-  for($flight_case = 1; $flight_case <= 1; $flight_case++) {
+  for($flight_case = 1; $flight_case <= 8; $flight_case++) {
 
     $t = 0; // s - flight time
     $td = 0; // s - output time
     $tf = 300.1; // s - flight ending time
     $dt = 0.01; // 1 per s - integration step
-    $dd = 5; // s - output step
+    $dd = 10; // s - output step
 
-    $X = array_fill(1, 13, 0);
-    $Y = array_fill(1, 13, 0);
+    $X = array_fill(1, 17, 0);
+    $Y = array_fill(1, 17, 0);
     $F = array_fill(1, 2, 0);
-    // $X[6] = 1;
-    $Y[6] = -18000; // m
-    // $Y[8] = $G_f0;
+    // $X[7] = 1;
+    $Y[7] = 0; // m
+    $Y[17] = $G_f0; // kg
 
     switch($flight_case) {
       case 1 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -5000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -5000;
         $S_LOC = $S_LOCn;
       break;
       }
       case 2 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -3000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -3000;
         $S_LOC = $S_LOCn;
       break;
       }
       case 3 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -2000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -2000;
         $S_LOC = $S_LOCn;
       break;
       }
       case 4 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -3000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -3000;
         $S_LOC = 54;
       break;
       }
       case 5 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -3000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -3000;
         $S_LOC = $S_LOCn;
       break;
       }
       case 6 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = -3000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = -3000;
         $S_LOC = 280;
       break;
       }
       case 7 : {
-        $Y[1] = 0;
-        $Y[7] = 300;
+        $Y[6] = 0;
+        $Y[9] = 0;
+        $Y[8] = 300;
         $S_LOC = $S_LOCn;
       break;
       }
       case 8 : {
-        $Y[1] = $Psi_g0;
-        $Y[7] = 2000;
+        $Y[6] = $Psi_g0;
+        $Y[9] = $Psi_g0;
+        $Y[8] = 2000;
         $S_LOC = $S_LOCn;
       break;
       }
@@ -213,11 +224,11 @@ ini_set('error_reporting', E_ALL);
     echo "<div class=\"container\">
       <div class=\"section\">"
       . "<h5 aling=\"left\">" .
-      "Mode value = <u>$mode</u>. " .
+      "Mode value = <u>" . $mode . "</u>. " .
       //"Positioning method = <u>$positioning_method</u>.</br>" .
-      "Integration method value = <u>$integration_method</u></br>" .
-      "Integration step value = <u>$dt</u></br>" .
-      "Z0 value = <u>" . $Y[7] . "</u>. W value = <u>$W</u>. NV value = <u>$NV</u>" .
+      "Integration method value = <u>" . $integration_method . "</u></br>" .
+      "Integration step value = <u>" . $dt . "</u></br>" .
+      "Z0 value = <u>" . $Y[8] . "</u>. Psi_g0 value = <u>" . $Y[1] . "</u>. NV value = <u>" . $S_LOC . "</u>" .
       "</h3>" .
       "</div>
     </div>";
@@ -230,69 +241,82 @@ ini_set('error_reporting', E_ALL);
         <th>T</th>
         <th>De</th>
         <th>Dn</th>
+        <th>Psi</th>
         <th>Gamma</th>
+        <th>Betta</th>
         <th>Psi_g</th>
         <th>X</th>
         <th>Z</th>
+        <th>DPsi</th>
+        <th>I_LOC</th>
+        <th>Epsilon_k</th>
+        <th>Gamma_set</th>
         <th>G_f</th>
       </tr>";
 
     for($t; $t <= $tf; $t += $dt) {
+
+      if($Y[7] <= $DGp) {
+        $k[5] = 3.0;
+        $k[17] = 120;
+      }
 
       $X[1] = $Y[2]; // pPsi
       $X[2] = -$a[1] * $Y[2] - $b[6] * $Y[4] - $a[2] * $Y[5] - $a[3] * $Dn - $b[5] * $De; // pWy
       $X[3] = $Y[4]; // pGamma
       $X[4] = -$b[1] * $Y[4] - $a[6] * $Y[2] - $b[2] * $Y[5] - $a[5] * $Dn - $b[3] * $De; // pWx
       $X[5] = $Y[2] + $b[4] * $Y[3] + $b[7] * $Y[4] - $a[4] * $Y[5] - $a[7] * $Dn; // pBetta
-      $Psi_g = -1 * $Y[1];
-      $W_x = $W * cos(deg2rad($NV - $Psi_g));
-      $W_z = $W * sin(deg2rad($NV - $Psi_g));
+      // $Psi_g = -1 * $Y[1];
+      $X[6] = -1 * $X[1]; // pPsi_g
+      $W_x = $W * cos(deg2rad($NV - $Y[6]));
+      $W_z = $W * sin(deg2rad($NV - $Y[6]));
       $V_sh = $V0 + $W_x;
-      $X[6] = $V_sh * cos(deg2rad($Psi_g + $Y[5])); // pD_RWY
-      $X[7] = $V_sh * sin(deg2rad($Psi_g + $Y[5])); // pZ
-      $DPsi = $Psi_g - $Psi_RWY; // pDPsi
+      $X[7] = $V_sh * cos(deg2rad($Y[6] + $Y[5])); // pD_RWY
+      $X[8] = $V_sh * sin(deg2rad($Y[6] + $Y[5])); // pZ
+      $X[9] = $X[6] - $Psi_RWY; // pDPsi
 
-      // $X[] = -3 * $q_eng; // pG_f
+      $X[17] = -3 * $q_eng; // pG_f
       // $P_p = rad2deg(atan($Y[7] / $Y[6]));
 
       switch($mode) {
         case "regulation" : {
-          $Epsilon_k_pre = rad2deg(atan($Y[7] / ($Y[6] + $L_RWY + 1000)));
+          $Epsilon_k_pre = rad2deg(atan($Y[8] / ($Y[7] + $L_RWY + 1000)));
           $I_LOC_pre = $S_LOC * $Epsilon_k_pre + $DI_LOC;
           if($I_LOC_pre > 250) {
             $I_LOC_pre = 250;
           } elseif($I_LOC_pre < -250) {
             $I_LOC_pre = -250;
           }
-          $X[8] = ($I_LOC_pre - $Y[8]) / $T_LOC; // pI_LOC
-          $Epsilon_k = $Y[8] / $S_LOCn; // $Epsilon_k
+          $X[10] = ($I_LOC_pre - $Y[10]) / $T_LOC; // pI_LOC
+          // $Epsilon_k = $Y[10] / $S_LOCn;
+          $X[11] = $X[10] / $S_LOCn; // pEpsilon_k
 
-          $X[9] = ($k[5] * $DPsi - $Y[9]) / $T[5]; // !!! must be pDPsi !!!
-          $X[10] = ($k[17] * $Epsilon_k - $Y[10]) / $T[17]; // !!! must be pEpsilon_k !!!
-          $F[1] = -1 * $k[3] * $DPsi + $k[10] * $Epsilon_k; //
+          $X[12] = ($k[5] * $X[9] - $Y[12]) / $T[5]; // 
+          $X[13] = ($k[17] * $X[11] - $Y[13]) / $T[17]; //
+          $F[1] = -1 * $k[3] * $Y[9] + $k[10] * $Y[11]; //
           if($F[1] > 25) {
             $F[1] = 25;
           } elseif($F[1] < -25) {
             $F[1] = -25;
           }
-          $F[2] = ($k[6] * $DPsi + $Y[9] + $Y[10] + $F[1]); //
+          $F[2] = ($k[6] * $Y[9] + $Y[12] + $Y[13] + $F[1]); //
           if($F[2] > 20) {
             $F[2] = 20;
           } elseif($F[2] < -20) {
             $F[2] = -20;
           }
-          $X[11] = (-1 * $k[15] * $F[2] - $Y[11]) / $T[15]; // Gamma_set
+          $X[14] = (-1 * $k[15] * $F[2] - $Y[14]) / $T[15]; // Gamma_set
 
-          $X[12] = $k_Wx * $X[4] - ($Y[12] / $T_Wx); //
-          $De = $k_Gamma * ($Y[3] - $Y[11]) + $Y[12]; // De
+          $X[15] = $k_Wx * $X[4] - ($Y[15] / $T_Wx); //
+          $De = $k_Gamma * ($Y[3] - $Y[14]) + $Y[15]; // De
           if($De > 12) {
             $De = 12;
           } elseif($De < -12) {
             $De = -12;
           }
           
-          $X[13] = $k_Wy * $X[2] - ($Y[13] / $T_Wy); //
-          $Dn = $Y[13] + $k_Wy_pre * $Y[2]; // Dn
+          $X[16] = $k_Wy * $X[2] - ($Y[16] / $T_Wy); //
+          $Dn = $Y[16] + $k_Wy_pre * $Y[2]; // Dn
           if($Dn > 10) {
             $Dn = 10;
           } elseif($Dn < -10) {
@@ -303,25 +327,31 @@ ini_set('error_reporting', E_ALL);
       }
       
       for($t; $t >= $td; $td += $dd){
-        array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Psi_g, "X" => $Y[6], "Z" => $Y[7], "G_f" => $Y[8]]);
+        array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Y[6], "X" => $Y[7], "Z" => $Y[8], "G_f" => $Y[17]]);
         echo  "<tr>
-        <td>" . number_format($td, 1, '.', ' ') . "</td>
+        <td>" . number_format($td, 0, '.', ' ') . "</td>
         <td>" . number_format($De, 4, '.', ' ') . "</td>
         <td>" . number_format($Dn, 4, '.', ' ') . "</td>
-        <td>" . number_format($Y[3], 4, '.', ' ') . "</td>
-        <td>" . number_format($Psi_g, 4, '.', ' ') . "</td>
-        <td>" . number_format($Y[6], 4, '.', ' ') . "</td>
-        <td>" . number_format($Y[7], 4, '.', ' ') . "</td>
-        <td>" . number_format($Y[8], 4, '.', ' ') . "</td>
+        <td>" . number_format($Y[1], 2, '.', ' ') . "</td>
+        <td>" . number_format($Y[3], 2, '.', ' ') . "</td>
+        <td>" . number_format($Y[5], 4, '.', ' ') . "</td>
+        <td>" . number_format($Y[6], 2, '.', ' ') . "</td>
+        <td>" . number_format($Y[7], 0, '.', ' ') . "</td>
+        <td>" . number_format($Y[8], 0, '.', ' ') . "</td>
+        <td>" . number_format($Y[9], 2, '.', ' ') . "</td>
+        <td>" . number_format($Y[10], 1, '.', ' ') . "</td>
+        <td>" . number_format($Y[11], 4, '.', ' ') . "</td>
+        <td>" . number_format($Y[14], 4, '.', ' ') . "</td>
+        <td>" . number_format($Y[17], 0, '.', ' ') . "</td>
         </tr>";
-        if($Y[6] >= 0) {
-          break 2;
-        }
+        // if($Y[7] >= 0 && $Y[8] >= 0) {
+        //   break 2;
+        // }
       }
 
       switch($integration_method) {
         case "eiler" : {
-          for($i = 1; $i <= 13; $i++){
+          for($i = 1; $i <= 17; $i++){
             $Y[$i] += $X[$i] * $dt;
           }
         break;
@@ -356,12 +386,13 @@ ini_set('error_reporting', E_ALL);
           <div id = "chart_div_Z" style = "width: 100%; height: 100%"></div>
           -->
           <div id = "chart_div_fc1" style = "width: 100%; height: 100%"></div>
-          <!--
           <div id = "chart_div_fc2" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc3" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc4" style = "width: 100%; height: 100%"></div>
           <div id = "chart_div_fc5" style = "width: 100%; height: 100%"></div>
-          -->
+          <div id = "chart_div_fc6" style = "width: 100%; height: 100%"></div>
+          <div id = "chart_div_fc7" style = "width: 100%; height: 100%"></div>
+          <div id = "chart_div_fc8" style = "width: 100%; height: 100%"></div>
       </div>
     </div>
   </div>
@@ -389,145 +420,18 @@ ini_set('error_reporting', E_ALL);
   </script>
   <script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js"></script>
   <script type = "text/javascript">
-    google.charts.load('current', {packages: ['corechart','line']});  
+    google.charts.load('current', {packages: ['corechart','line']});
   </script>
-  <!----
-  <script>
-    function chart_div_X() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 1');
-      data.addColumn('number', 'flight case 2');
-      data.addColumn('number', 'flight case 3');
-      data.addColumn('number', 'flight case 4');
-      data.addColumn('number', 'flight case 5');
-      data.addRows([
-        <?php
-          $data = array();
-          $json_data = array();
-          for($i = 1; $i <= 5; $i++) {
-            $data[$i] = file_get_contents("./data" . $i . ".json");
-            $json_data[$i] = json_decode($data[$i], true);
-          }
-          $max_time = 0;
-          $min_time = 999;
-          for($i = 1; $i <= 5; $i++) {
-            $max_time = max($max_time, count($json_data[$i]));
-            $min_time = min($min_time, count($json_data[$i]));
-          }
-          for ($i = 0; $i <= ($min_time - 1); $i++) {
-            echo "["
-            . $json_data[1][$i]['time'] . ",  "
-            . $json_data[1][$i]['X'] . ",  "
-            . $json_data[2][$i]['X'] . ",  "
-            . $json_data[3][$i]['X'] . ",  "
-            . $json_data[4][$i]['X'] . ",  "
-            . $json_data[5][$i]['X']
-            . "],";
-          }
-        ?>
-      ]);
-      var chart_options = {
-        'title' : 'X',
-        'height': 800,
-        'width': 1200,
-        curveType: 'function',
-        colors: ['blue', 'red', 'yellow', 'purple', 'green']
-      };
-      var chart = new google.visualization.LineChart(document.getElementById('chart_div_X'));
-      chart.draw(data, chart_options);
-    }
-    google.charts.setOnLoadCallback(chart_div_X);
-
-    function chart_div_Z() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 1');
-      data.addColumn('number', 'flight case 2');
-      data.addColumn('number', 'flight case 3');
-      data.addColumn('number', 'flight case 4');
-      data.addColumn('number', 'flight case 5');
-      data.addRows([
-        <?php
-          $data = array();
-          $json_data = array();
-          $max_time = 0;
-          $min_time = 999;
-          for($i = 1; $i <= 5; $i++) {
-            $data[$i] = file_get_contents("./data" . $i . ".json");
-            $json_data[$i] = json_decode($data[$i], true);
-            $max_time = max($max_time, count($json_data[$i]));
-            $min_time = min($min_time, count($json_data[$i]));
-          }
-          for ($i = 0; $i <= ($min_time - 1); $i++) {
-            echo "["
-            . $json_data[1][$i]['time'] . ",  "
-            . $json_data[1][$i]['Z'] . ",  "
-            . $json_data[2][$i]['Z'] . ",  "
-            . $json_data[3][$i]['Z'] . ",  "
-            . $json_data[4][$i]['Z'] . ",  "
-            . $json_data[5][$i]['Z']
-            . "],";
-          }
-        ?>
-      ]);
-      var chart_options = {
-        'title' : 'Z',
-        'height': 2400,
-        'width': 1200,
-        curveType: 'function',
-        colors: ['blue', 'red', 'yellow', 'purple', 'green']
-      };
-      var chart = new google.visualization.LineChart(document.getElementById('chart_div_Z'));
-      chart.draw(data, chart_options);
-    }
-    google.charts.setOnLoadCallback(chart_div_Z);
-
-    function chart_div_fc1() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 1');
-      data.addRows([
-        <?php
-          $data = array();
-          $json_data = array();
-          $max_time = 0;
-          for($i = 1; $i <= 1; $i++) {
-            $data[$i] = file_get_contents("./data" . $i . ".json");
-            $json_data[$i] = json_decode($data[$i], true);
-            $max_time = max($max_time, count($json_data[$i]));
-          }
-          for ($i = 0; $i <= ($max_time - 1); $i++) {
-            echo "["
-            . $json_data[1][$i]['X'] . ",  "
-            . $json_data[1][$i]['Z']
-            . "],";
-          }
-        ?>
-      ]);
-      var chart_options = {
-        'title' : 'flight case 1',
-        'height': 2400,
-        'width': 1200,
-        curveType: 'function',
-        colors: ['blue', 'red', 'yellow', 'purple', 'green']
-      };
-      var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc1'));
-      chart.draw(data, chart_options);
-    }
-    google.charts.setOnLoadCallback(chart_div_fc1);
-  </script>
-  ---->
   <script>
     function chart_div_fc1() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 1');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 1');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
-          for($i = 1; $i <= 5; $i++) {
+          for($i = 1; $i <= 8; $i++) {
             $data[$i] = file_get_contents("./data" . $i . ".json");
             $json_data[$i] = json_decode($data[$i], true);
           }
@@ -546,11 +450,19 @@ ini_set('error_reporting', E_ALL);
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
+
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc1'));
-      chart.draw(data, chart_options);
+      /*function placeMarker(dataTable) {
+                var chart_li = this.getChartLayoutInterface();
+                var chart_Area = chart_li.getChartAreaBoundingBox();
+                document.querySelector('.overlay-marker').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 1))) - 50 + "px";
+                document.querySelector('.overlay-marker').style.left = Math.floor(chart_li.getXLocation(0)) - 10 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));*/
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc1);
-    /*
+
     function chart_div_fc2() {
       var data = new google.visualization.DataTable();
       data.addColumn('number', 'flight time');
@@ -677,7 +589,103 @@ ini_set('error_reporting', E_ALL);
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc5'));
       chart.draw(data, chart_options);
     }
-    google.charts.setOnLoadCallback(chart_div_fc5);*/
+    google.charts.setOnLoadCallback(chart_div_fc5);
+
+    function chart_div_fc6() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'flight time');
+      data.addColumn('number', 'flight case 6');
+      data.addRows([
+        <?php
+          $data = array();
+          $json_data = array();
+          for($i = 1; $i <= 8; $i++) {
+            $data[$i] = file_get_contents("./data" . $i . ".json");
+            $json_data[$i] = json_decode($data[$i], true);
+          }
+          for ($i = 0; $i <= (count($json_data[6]) - 1); $i++) {
+            echo "["
+            . $json_data[6][$i]['X'] . ",  "
+            . $json_data[6][$i]['Z']
+            . "],";
+          }
+        ?>
+      ]);
+      var chart_options = {
+        'title' : 'flight case 6',
+        'height': 600,
+        'width': 1200,
+        curveType: 'function',
+        colors: ['blue', 'red', 'yellow', 'purple', 'green']
+      };
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc6'));
+      chart.draw(data, chart_options);
+    }
+    google.charts.setOnLoadCallback(chart_div_fc6);
+
+    function chart_div_fc7() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'flight time');
+      data.addColumn('number', 'flight case 7');
+      data.addRows([
+        <?php
+          $data = array();
+          $json_data = array();
+          for($i = 1; $i <= 8; $i++) {
+            $data[$i] = file_get_contents("./data" . $i . ".json");
+            $json_data[$i] = json_decode($data[$i], true);
+          }
+          for ($i = 0; $i <= (count($json_data[7]) - 1); $i++) {
+            echo "["
+            . $json_data[7][$i]['X'] . ",  "
+            . $json_data[7][$i]['Z']
+            . "],";
+          }
+        ?>
+      ]);
+      var chart_options = {
+        'title' : 'flight case 7',
+        'height': 600,
+        'width': 1200,
+        curveType: 'function',
+        colors: ['blue', 'red', 'yellow', 'purple', 'green']
+      };
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc7'));
+      chart.draw(data, chart_options);
+    }
+    google.charts.setOnLoadCallback(chart_div_fc7);
+
+    function chart_div_fc8() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('number', 'flight time');
+      data.addColumn('number', 'flight case 8');
+      data.addRows([
+        <?php
+          $data = array();
+          $json_data = array();
+          for($i = 1; $i <= 8; $i++) {
+            $data[$i] = file_get_contents("./data" . $i . ".json");
+            $json_data[$i] = json_decode($data[$i], true);
+          }
+          for ($i = 0; $i <= (count($json_data[8]) - 1); $i++) {
+            echo "["
+            . $json_data[8][$i]['X'] . ",  "
+            . $json_data[8][$i]['Z']
+            . "],";
+          }
+        ?>
+      ]);
+      var chart_options = {
+        'title' : 'flight case 8',
+        'height': 600,
+        'width': 1200,
+        curveType: 'function',
+        colors: ['blue', 'red', 'yellow', 'purple', 'green']
+      };
+      var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc8'));
+      chart.draw(data, chart_options);
+    }
+    google.charts.setOnLoadCallback(chart_div_fc8);
   </script>
 </body>
 </html>
