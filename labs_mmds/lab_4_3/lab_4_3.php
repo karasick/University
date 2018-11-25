@@ -91,7 +91,7 @@ ini_set('error_reporting', E_ALL);
   $Psi_g0 = 90;
 
   // for calculations
-  $DGp = rad2deg($H0) / 2.67 - 300; // Gp - glide path
+  $DGp = (rad2deg($H0) / 2.67) - $L_RWY - 1000; // Gp - glide path
   $Ga_B = $m_y_B - (($C_z_B * $pr * $S * $l) / (4 * $m)) * $m_y_vWy;
   $W_x_De = -0.73;
   $Xx = (($m_x_B * $I_y) / ($m_y_B * $I_x)) * (1 / sqrt(1 - pow(($m_x_vWx / $I_x), 2) * $I_y * $S * pow($l, 2) * ($pr / (4 * $m_y_B))));
@@ -117,9 +117,10 @@ ini_set('error_reporting', E_ALL);
     <div class=\"section\">";
   echo "<b>a</b>: ";
   var_dump($a);
-  echo "<br/><b>b</b>: ";
+  echo "</div>
+    <div class=\"section\">";
+  echo "<b>b</b>: ";
   var_dump($b);
-  echo "<br/>";
   echo "</div>
   </div>";
 
@@ -146,9 +147,11 @@ ini_set('error_reporting', E_ALL);
 
     $t = 0; // s - flight time
     $td = 0; // s - output time
+    $tg = 0; // s - graphics output time
     $tf = 300.1; // s - flight ending time
     $dt = 0.01; // 1 per s - integration step
-    $dd = 10; // s - output step
+    $dd = 25; // s - output step
+    $gd = 5; // s - graphics output step
 
     $X = array_fill(1, 17, 0);
     $Y = array_fill(1, 17, 0);
@@ -221,38 +224,41 @@ ini_set('error_reporting', E_ALL);
     $Dn = 0;
     $De = 0;
 
-    echo "<div class=\"container\">
-      <div class=\"section\">"
-      . "<h5 aling=\"left\">" .
-      "Mode value = <u>" . $mode . "</u>. " .
-      //"Positioning method = <u>$positioning_method</u>.</br>" .
-      "Integration method value = <u>" . $integration_method . "</u></br>" .
-      "Integration step value = <u>" . $dt . "</u></br>" .
-      "Z0 value = <u>" . $Y[8] . "</u>. Psi_g0 value = <u>" . $Y[6] . "</u>. NV value = <u>" . $S_LOC . "</u>" .
-      "</h3>" .
+    echo "<div class=\"container no-pad-bot scrollspy\" id=\"flightcase-" . $flight_case ."\">
+      <div class=\"section\">
+        <h4>Flight case " . $flight_case . ":</h4>
+      </div>
+      <div class=\"divider\">
+      </div>
+      <div class=\"section\">" .
+        "<h5 aling=\"left\">" .
+        "Mode value = <u>" . $mode . "</u>. " .
+        "Integration method value = <u>" . $integration_method . "</u></br>" .
+        "Integration step value = <u>" . $dt . "</u></br>" .
+        "Z0 value = <u>" . $Y[8] . "</u>. Psi_g0 value = <u>" . $Y[6] . "</u>. S_LOC value = <u>" . $S_LOC . "</u>" .
+        "</h5>" .
       "</div>
-    </div>";
-
-    echo "<div class=\"container\">
-    <div class=\"section\">";
-    echo
-      "<table width=\"100%\" cellspacing=\"0\" border=\"1\">
-      <tr>
-        <th>T</th>
-        <th>De</th>
-        <th>Dn</th>
-        <th>Psi</th>
-        <th>Gamma</th>
-        <th>Betta</th>
-        <th>Psi_g</th>
-        <th>X</th>
-        <th>Z</th>
-        <th>DPsi</th>
-        <th>I_LOC</th>
-        <th>Epsilon_k</th>
-        <th>Gamma_set</th>
-        <th>G_f</th>
-      </tr>";
+      <div class=\"section\">
+        <table width=\"100%\" cellspacing=\"0\" border=\"1\" class=\"highlight\">
+          <thead>
+            <tr>
+              <th>T</th>
+              <th>De</th>
+              <th>Dn</th>
+              <th>Psi</th>
+              <th>Gamma</th>
+              <th>Betta</th>
+              <th>Psi_g</th>
+              <th>X</th>
+              <th>Z</th>
+              <th>DPsi</th>
+              <th>I_LOC</th>
+              <th>Epsilon_k</th>
+              <th>Gamma_set</th>
+              <th>G_f</th>
+            </tr>
+          </thead>
+          <tbody>";
 
     for($t; $t <= $tf; $t += $dt) {
 
@@ -327,7 +333,6 @@ ini_set('error_reporting', E_ALL);
       }
       
       for($t; $t >= $td; $td += $dd){
-        array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Y[6], "X" => $Y[7], "Z" => $Y[8], "G_f" => $Y[17]]);
         echo  "<tr>
         <td>" . number_format($td, 0, '.', ' ') . "</td>
         <td>" . number_format($De, 4, '.', ' ') . "</td>
@@ -344,10 +349,15 @@ ini_set('error_reporting', E_ALL);
         <td>" . number_format($Y[14], 4, '.', ' ') . "</td>
         <td>" . number_format($Y[17], 0, '.', ' ') . "</td>
         </tr>";
+      }
+
+      for($t; $t >= $tg; $tg += $gd){
+        array_push($graph_data[$flight_case], ["time" => $td, "Gamma" => $Y[3], "Psi_g" => $Y[6], "X" => $Y[7], "Z" => $Y[8], "G_f" => $Y[17]]);
         if($Y[7] >= 18300) {
           break 2;
         }
       }
+
 
       switch($integration_method) {
         case "eiler" : {
@@ -358,46 +368,40 @@ ini_set('error_reporting', E_ALL);
         }
       }
     }
-    echo "</table><br/>";
-    echo  "</div>
-    </div>";
-    
-
+          echo "</tbody>
+        </table><br/>
+      </div>";
     $graph_data_file = 'data' . $flight_case . '.json';
     $handle = fopen($graph_data_file, 'w') or die ('Cannot open file: ' . $graph_data_file);
     $graph_content = json_encode($graph_data[$flight_case]);
     fwrite($handle, $graph_content);
+      echo "<div class = \"section\">
+        <div class=\"chartWithMarkerOverlay\">
+          <div id = \"chart_div_fc" . $flight_case . "\" style = \"width: 1000px; height: 500px; margin-left: -100px;\">
+          </div>
+          <div id = \"chart_div_mp" . $flight_case . "\" class = \"overlay-marker\">
+            <img src = \"img/baseline_airplanemode_active_black_48_fliped.png\" class = \"gwd-img-15oh gwd-gen-12njgwdanimation\"
+            data-gwd-motion-path-key = \"gwd-motion-path-b5zl\" data-gwd-has-tangent-following = \"\">
+          </div>
+        </div>
+      </div>
+    </div>";
   }
+
   $Vi = $V0 * 3.6 * sqrt(($pr)/(0.1249)); // Vhf
   $M = $Vi / $An;
   echo "<div class=\"container\">
-    <div class=\"section\">";
-    echo "<h4>Vi = " . $Vi . "</h2>";
-    echo "<h5>M = " . $M . "</h3>";
-  echo "</div>
+    <div class=\"section\">
+      <h4>Vi = " . $Vi . "</h2>
+      <h5>M = " . $M . "</h3>
+      <h5>Dgp = " . $DGp . "</h3>
+    </div>
   </div>";
-  echo "</div>";  
 ?>
 <html>
 <body>
-      <div class="section no-pad-bot scrollspy" id="graphics">
-          <!--
-          <div id = "chart_div_X" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_Z" style = "width: 100%; height: 100%"></div>
-          -->
-          <div id = "chart_div_fc1" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc2" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc3" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc4" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc5" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc6" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc7" style = "width: 100%; height: 100%"></div>
-          <div id = "chart_div_fc8" style = "width: 100%; height: 100%"></div>
-      </div>
-    </div>
-  </div>
+  </main>
   <?php include 'html/footer.html';?>
-  <!---  Scripts--->
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
@@ -409,18 +413,17 @@ ini_set('error_reporting', E_ALL);
     });
   </script>
   <script type = "text/javascript">
-    function scrollToGraphics() {
-      var graphics = document.getElementById("chart_div_fc1");
-      graphics.scrollIntoView({block: "start", behavior: "smooth"});
-    }
     function scrollToTop() {
-      var graphics = document.getElementById("nav-bar");
+      var graphics = document.getElementById("top-nav");
       graphics.scrollIntoView({block: "start", behavior: "smooth"});
     }
   </script>
-  <script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js"></script>
+  <script type = "text/javascript" src = "https://www.gstatic.com/charts/loader.js">
+  </script>
   <script type = "text/javascript">
     google.charts.load('current', {packages: ['corechart','line']});
+  </script>
+  <script type="text/javascript" src="motionpath_runtime.min.1.0.js" gwd-motionpath-version="1.0">
   </script>
   <script>
     function chart_div_fc1() {
@@ -444,30 +447,33 @@ ini_set('error_reporting', E_ALL);
         ?>
       ]);
       var chart_options = {
+        animation: {
+          startup: true,
+          duration: 1000,
+          easing: 'out'
+        },
         'title' : 'flight case 1',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
 
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc1'));
-      /*function placeMarker(dataTable) {
-                var chart_li = this.getChartLayoutInterface();
-                var chart_Area = chart_li.getChartAreaBoundingBox();
-                document.querySelector('.overlay-marker').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 1))) - 50 + "px";
-                document.querySelector('.overlay-marker').style.left = Math.floor(chart_li.getXLocation(0)) - 10 + "px";
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp1').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp1').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
       };
-      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));*/
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
       chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc1);
 
     function chart_div_fc2() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 2');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 2');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -485,21 +491,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 2',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc2'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp2').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp2').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc2);
 
     function chart_div_fc3() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 3');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 3');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -517,21 +528,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 3',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc3'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp3').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp3').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc3);
 
     function chart_div_fc4() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 4');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 4');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -549,21 +565,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 4',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc4'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp4').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp4').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc4);
 
     function chart_div_fc5() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 5');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 5');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -581,21 +602,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 5',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc5'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp5').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp5').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc5);
 
     function chart_div_fc6() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 6');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 6');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -613,21 +639,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 6',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc6'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp6').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp6').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc6);
 
     function chart_div_fc7() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 7');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 7');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -645,21 +676,26 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 7',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc7'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp7').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp7').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc7);
 
     function chart_div_fc8() {
-      var data = new google.visualization.DataTable();
-      data.addColumn('number', 'flight time');
-      data.addColumn('number', 'flight case 8');
-      data.addRows([
+      var chart_data = new google.visualization.DataTable();
+      chart_data.addColumn('number', 'flight time');
+      chart_data.addColumn('number', 'flight case 8');
+      chart_data.addRows([
         <?php
           $data = array();
           $json_data = array();
@@ -677,13 +713,18 @@ ini_set('error_reporting', E_ALL);
       ]);
       var chart_options = {
         'title' : 'flight case 8',
-        'height': 600,
-        'width': 1200,
         curveType: 'function',
         colors: ['blue', 'red', 'yellow', 'purple', 'green']
       };
       var chart = new google.visualization.LineChart(document.getElementById('chart_div_fc8'));
-      chart.draw(data, chart_options);
+      function placeMarker(dataTable) {
+        var chart_li = this.getChartLayoutInterface();
+        var chart_area = chart_li.getChartAreaBoundingBox();
+        document.querySelector('#chart_div_mp8').style.top = Math.floor(chart_li.getYLocation(dataTable.getValue(0, 0))) - 58 + "px";
+        document.querySelector('#chart_div_mp8').style.left = Math.floor(chart_li.getXLocation(dataTable.getValue(0, 0))) - 180 + "px";
+      };
+      google.visualization.events.addListener(chart, 'ready', placeMarker.bind(chart, chart_data));
+      chart.draw(chart_data, chart_options);
     }
     google.charts.setOnLoadCallback(chart_div_fc8);
   </script>
