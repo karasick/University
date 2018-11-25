@@ -1,0 +1,18 @@
+/* Custom Stylesheet */
+.icon-block {
+  padding: 0 10px;
+}
+.icon-block .material-icons {
+	font-size: inherit;
+}
+.sidenav {
+  width: 200px;
+}
+header, main, footer {
+  padding-left: 100px;
+}
+@media only screen and (max-width: 992px) {
+  header, main, footer {
+    padding-left: 0px;
+  }
+}
